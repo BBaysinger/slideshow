@@ -21,7 +21,7 @@ const SlideShow: React.FC<SlideShowProps> = ({
   // Handle navigation to the next slide
   const handleNextSlide = useCallback(() => {
     const nextIndex = (currentIndex + 1) % slides.length;
-    navigate(`?slide=${nextIndex}`);
+    navigate(`/ricoSlides/${nextIndex}`);
   }, [currentIndex, slides.length, navigate]);
 
   // Handle auto-slide functionality
@@ -66,7 +66,7 @@ const SlideShow: React.FC<SlideShowProps> = ({
             onClick={() => handleSelectSlide(index)}
             className={index === currentIndex ? "active" : ""}
           >
-            {index + 1}
+            <img src={slides[index].filename} alt={slides[index].alt || `Slide ${index}`} />
           </button>
         ))}
       </div>

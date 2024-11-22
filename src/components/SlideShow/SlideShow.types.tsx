@@ -1,7 +1,11 @@
 interface Slide {
   id: string;
-  content?: React.ReactNode;
   filename: string;
+  thumbnail: string;
+  foreground?: string;
+  content?: React.ReactNode;
+  alt?: string;
+  desc?: string;
 }
 
 interface SlideShowProps {
