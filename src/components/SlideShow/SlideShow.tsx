@@ -16,7 +16,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const currentRouteIndex = parseInt(
     new URLSearchParams(location.search).get("slide") || "0",
-    10
+    10,
   );
 
   const [currentIndex, setCurrentIndex] = useState(currentRouteIndex);
