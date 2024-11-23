@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { SlideshowProps } from "./Slideshow.types";
@@ -20,40 +20,67 @@ const Slideshow: React.FC<SlideshowProps> = ({
   );
 
   const [currentIndex, setCurrentIndex] = useState(currentRouteIndex);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(
+    new Set([currentRouteIndex]), // Start with the deep-linked image loaded
+  );
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const restartTimer = useCallback(() => {
+    clearTimer();
+    if (autoSlide) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+      }, interval);
+    }
+  }, [autoSlide, interval, slides.length]);
 
   useEffect(() => {
     setCurrentIndex(currentRouteIndex);
-  }, [currentRouteIndex]);
-
-  const handleNextSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
-  }, [slides.length]);
+    restartTimer();
+  }, [currentRouteIndex, restartTimer]);
 
   useEffect(() => {
-    if (!autoSlide) return;
-
-    const slideInterval = setInterval(() => {
-      handleNextSlide();
-    }, interval);
-
-    return () => clearInterval(slideInterval);
-  }, [handleNextSlide, autoSlide, interval]);
+    restartTimer();
+    return clearTimer; // Clear timer on component unmount
+  }, [restartTimer]);
 
   const handlePrevUserTriggered = () => {
     const newIndex = (currentIndex - 1 + slides.length) % slides.length;
     setCurrentIndex(newIndex);
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
+    restartTimer();
   };
 
   const handleButtUserTriggered = (newIndex: number) => {
     setCurrentIndex(newIndex);
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
+    restartTimer();
   };
 
   const handleNextUserTriggered = () => {
     const newIndex = (currentIndex + 1) % slides.length;
     setCurrentIndex(newIndex);
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
+    restartTimer();
+  };
+
+  const handleImageLoad = (index: number) => {
+    setLoadedImages((prev) => new Set(prev).add(index)); // Mark image as loaded
+  };
+
+  const getLoadingAttribute = (index: number): "eager" | "lazy" | undefined => {
+    if (index === currentIndex) return "eager"; // Load the deep-linked image eagerly
+    if (loadedImages.has((index - 1 + slides.length) % slides.length)) {
+      return "lazy"; // Load sequentially only if the previous slide is loaded
+    }
+    return undefined; // Defer loading until the previous slide is ready
   };
 
   return (
@@ -69,11 +96,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
               backgroundImage: `url(/assets/images/${slide.background})`,
             }}
           >
-            {/* Fallback hidden image for preloading */}
             <img
-              loading="lazy"
+              loading={getLoadingAttribute(index)}
               src={`/assets/images/${slide.background}`}
               alt={slide.alt || `Slide ${index}`}
+              onLoad={() => handleImageLoad(index)} // Notify when image is loaded
               style={{ display: "none" }}
             />
           </div>
