@@ -44,7 +44,7 @@ function App() {
     {
       id: "six",
       filename: "6-background.jpg",
-      thumbnail: "6thumbnail.jpg",
+      thumbnail: "6-thumbnail.jpg",
       desc: "Description 6",
       alt: "Slide 6",
     },
@@ -61,7 +61,12 @@ function App() {
             </a>
           }
         />
-        <Route path="/ricoSlideshow" element={<Slideshow slides={slides} />} />
+        <Route
+          path="/ricoSlideshow"
+          element={
+            <Slideshow slides={slides} interval={6000} prev={""} next={""} />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

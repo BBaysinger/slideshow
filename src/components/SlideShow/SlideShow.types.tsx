@@ -12,8 +12,8 @@ interface SlideshowProps {
   slides: Slide[];
   autoSlide?: boolean;
   interval?: number;
-  navigation?: boolean;
-  loop?: boolean;
+  prev?: string;
+  next?: string;
 }
 
 export type { SlideshowProps, Slide };

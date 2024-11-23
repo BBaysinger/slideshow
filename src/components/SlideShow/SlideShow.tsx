@@ -1,13 +1,29 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import "./Slideshow.module.scss";
 import { SlideshowProps } from "./Slideshow.types";
+import styles from "./Slideshow.module.scss";
 
+/**
+ * Slideshow Component
+ *
+ * A reusable slideshow component that supports auto-sliding and user-controlled navigation.
+ * - Auto-sliding: Slides advance automatically at a configurable interval without affecting the URL.
+ * - User navigation: Supports next/previous buttons and clickable slide indicators, which update the URL and notify Redux.
+ * - Route integration: Extracts the current slide index from the URL for synchronization but decouples auto-sliding from routing.
+ *
+ * Props:
+ * - slides: An array of slide data, each with an image filename and optional alt text.
+ * - autoSlide (boolean): Enables or disables automatic sliding (default: true).
+ * - interval (number): Time in milliseconds between auto-slides (default: 3000ms).
+ * - navigation (boolean): Enables or disables 'previous' and 'next' controls (default: true).
+ */
 const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
   interval = 3000,
+  prev = "previous",
+  next = "next",
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,19 +58,20 @@ const Slideshow: React.FC<SlideshowProps> = ({
     return () => clearInterval(slideInterval);
   }, [handleNextSlide, autoSlide, interval]);
 
-  // Handle manual navigation
+  // Manual navigation on user interaction
   const handlePrevUserTriggered = () => {
     const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
     setCurrentIndex(prevIndex);
     navigate(`/ricoSlides/${prevIndex}`);
   };
 
+  // Manual navigation on user interaction
   const handleButtUserTriggered = (index: number) => {
     setCurrentIndex(index);
     navigate(`/ricoSlides/${index}`);
   };
 
-  // Sync currentIndex to Redux/store on user interaction
+  // Manual navigation on user interaction
   const handleNextUserTriggered = () => {
     const nextIndex = (currentIndex + 1) % slides.length;
     setCurrentIndex(nextIndex);
@@ -62,12 +79,12 @@ const Slideshow: React.FC<SlideshowProps> = ({
   };
 
   return (
-    <div className="slideshow">
-      <div className="slideshow-container">
+    <div className="playstationSlideshow">
+      <div className={`${styles.slideContainer}`}>
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`slide ${index === currentIndex ? "active" : ""}`}
+            className={`${styles.slide}${index === currentIndex ? ` ${styles.active}` : ""}`}
           >
             <img
               src={"/assets/images/" + slide.filename}
@@ -76,14 +93,18 @@ const Slideshow: React.FC<SlideshowProps> = ({
           </div>
         ))}
       </div>
-      <button onClick={handlePrevUserTriggered}>Previous</button>
-      <button onClick={handleNextUserTriggered}>Next</button>
-      <div className="slideshow-indicators">
+
+      <div className="slideshowNavigation">
+        {prev && <button onClick={handlePrevUserTriggered}>{prev}</button>}
+        {next && <button onClick={handleNextUserTriggered}>{next}</button>}
+      </div>
+
+      <div className="slideshowIndicators">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => handleButtUserTriggered(index)}
-            className={index === currentIndex ? "active" : ""}
+            className={`${styles.thumbnail}${index === currentIndex ? ` ${styles.active}` : ""}`}
           >
             <img
               src={"/assets/images/" + slides[index].thumbnail}
