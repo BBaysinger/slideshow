@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { SlideshowProps } from "./Slideshow.types";
 import styles from "./Slideshow.module.scss";
@@ -11,17 +11,18 @@ const Slideshow: React.FC<SlideshowProps> = ({
   prev = "Previous",
   next = "Next",
 }) => {
-  const location = useLocation();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const currentRouteIndex = parseInt(
-    new URLSearchParams(location.search).get("slide") || "0",
-    10,
-  );
+  // Find the index of the current slide based on the slug in the route
+  const currentRouteIndex = slides.findIndex((slide) => slide.slug === slug);
 
-  const [currentIndex, setCurrentIndex] = useState(currentRouteIndex);
+  // Initialize the current index, defaulting to the first slide if the route is invalid
+  const [currentIndex, setCurrentIndex] = useState(() =>
+    currentRouteIndex !== -1 ? currentRouteIndex : 0
+  );
   const [loadedImages, setLoadedImages] = useState<Set<number>>(
-    new Set([currentRouteIndex]), // Start with the deep-linked image loaded
+    new Set([currentIndex]) // Start with the initial slide image loaded
   );
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -41,10 +42,16 @@ const Slideshow: React.FC<SlideshowProps> = ({
     }
   }, [autoSlide, interval, slides.length]);
 
+  // Sync the currentIndex with the route whenever the slug changes
   useEffect(() => {
-    setCurrentIndex(currentRouteIndex);
+    if (currentRouteIndex !== -1) {
+      setCurrentIndex(currentRouteIndex);
+    } else {
+      // Redirect to the first slide if the slug is invalid
+      navigate(`/ricoSlideshow/${slides[0].slug}`);
+    }
     restartTimer();
-  }, [currentRouteIndex, restartTimer]);
+  }, [slug, currentRouteIndex, slides, navigate, restartTimer]);
 
   useEffect(() => {
     restartTimer();
