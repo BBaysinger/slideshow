@@ -7,45 +7,45 @@ function App() {
   const slides: Slide[] = [
     {
       id: "one",
-      filename: "slide1.jpg",
-      thumbnail: "thumbnail1.jpg",
-      foreground: "foreground1.jpg",
+      filename: "1-background.jpg",
+      thumbnail: "1-thumbnail.jpg",
+      foreground: "1-foreground.jpg",
       desc: "Description 1",
       alt: "Slide 1",
     },
     {
       id: "two",
-      filename: "slide2.jpg",
-      thumbnail: "thumbnail2.jpg",
+      filename: "2-background.jpg",
+      thumbnail: "2-thumbnail.jpg",
       desc: "Description 2",
       alt: "Slide 2",
     },
     {
       id: "three",
-      filename: "slide3.jpg",
-      thumbnail: "thumbnail3.jpg",
+      filename: "3-background.jpg",
+      thumbnail: "3-thumbnail.jpg",
       desc: "Description 3",
       alt: "Slide 3",
     },
     {
       id: "four",
-      filename: "slide4.jpg",
-      thumbnail: "thumbnail4.jpg",
+      filename: "4-background.jpg",
+      thumbnail: "4-thumbnail.jpg",
       desc: "Description 4",
       alt: "Slide 4",
     },
     {
       id: "five",
-      filename: "slide5.jpg",
-      thumbnail: "thumbnail5.jpg",
+      filename: "5-background.jpg",
+      thumbnail: "5-thumbnail.jpg",
       desc: "Description 5",
       alt: "Slide 5",
     },
     {
       id: "six",
-      filename: "slide6.jpg",
-      thumbnail: "thumbnail6.jpg",
-      desc: "Description 1",
+      filename: "6-background.jpg",
+      thumbnail: "6thumbnail.jpg",
+      desc: "Description 6",
       alt: "Slide 6",
     },
   ];
@@ -55,7 +55,11 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<a href="/ricoSlideshow" className="ricolink">To the Rico slideshow...</a>}
+          element={
+            <a href="/ricoSlideshow" className="ricolink">
+              To the Rico slideshow...
+            </a>
+          }
         />
         <Route path="/ricoSlideshow" element={<Slideshow slides={slides} />} />
       </Routes>

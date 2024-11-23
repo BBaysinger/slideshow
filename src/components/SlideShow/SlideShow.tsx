@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import "./Slideshow.module.scss";
@@ -12,17 +12,24 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract the current slide index from the route
-  const currentIndex = parseInt(
+  // Extract the current slide index from the route for user-triggered navigation
+  const currentRouteIndex = parseInt(
     new URLSearchParams(location.search).get("slide") || "0",
     10,
   );
 
+  // Maintain local state for auto-slide index
+  const [currentIndex, setCurrentIndex] = useState(currentRouteIndex);
+
+  // Sync local state with route on user-triggered navigation
+  useEffect(() => {
+    setCurrentIndex(currentRouteIndex);
+  }, [currentRouteIndex]);
+
   // Handle navigation to the next slide
   const handleNextSlide = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % slides.length;
-    navigate(`/ricoSlides/${nextIndex}`);
-  }, [currentIndex, slides.length, navigate]);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+  }, [slides.length]);
 
   // Handle auto-slide functionality
   useEffect(() => {
@@ -36,40 +43,51 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }, [handleNextSlide, autoSlide, interval]);
 
   // Handle manual navigation
-  const handlePreviousSlide = () => {
+  const handlePrevUserTriggered = () => {
     const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
+    setCurrentIndex(prevIndex);
     navigate(`/ricoSlides/${prevIndex}`);
   };
 
-  const handleSelectSlide = (index: number) => {
+  const handleButtUserTriggered = (index: number) => {
+    setCurrentIndex(index);
     navigate(`/ricoSlides/${index}`);
+  };
+
+  // Sync currentIndex to Redux/store on user interaction
+  const handleNextUserTriggered = () => {
+    const nextIndex = (currentIndex + 1) % slides.length;
+    setCurrentIndex(nextIndex);
+    navigate(`/ricoSlides/${nextIndex}`);
   };
 
   return (
     <div className="slideshow">
-      test
       <div className="slideshow-container">
         {slides.map((slide, index) => (
           <div
             key={index}
             className={`slide ${index === currentIndex ? "active" : ""}`}
           >
-            <img src={slide.filename} alt={`Slide ${index}`} />
+            <img
+              src={"/assets/images/" + slide.filename}
+              alt={`Slide ${index}`}
+            />
           </div>
         ))}
       </div>
-      <button onClick={handlePreviousSlide}>Previous</button>
-      <button onClick={handleNextSlide}>Next</button>
+      <button onClick={handlePrevUserTriggered}>Previous</button>
+      <button onClick={handleNextUserTriggered}>Next</button>
       <div className="slideshow-indicators">
         {slides.map((_, index) => (
           <button
             key={index}
-            onClick={() => handleSelectSlide(index)}
+            onClick={() => handleButtUserTriggered(index)}
             className={index === currentIndex ? "active" : ""}
           >
             <img
-              src={slides[index].filename}
-              alt={slides[index].alt || `Slide ${index}`}
+              src={"/assets/images/" + slides[index].thumbnail}
+              alt={slides[index].alt || `Button ${index}`}
             />
           </button>
         ))}
