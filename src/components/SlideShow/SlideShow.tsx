@@ -22,8 +22,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
   interval = 3000,
-  prev = "previous",
-  next = "next",
+  prev = "Previous",
+  next = "Next",
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,22 +60,22 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   // Manual navigation on user interaction
   const handlePrevUserTriggered = () => {
-    const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
-    setCurrentIndex(prevIndex);
-    navigate(`/ricoSlides/${prevIndex}`);
+    const newIndex = (currentIndex - 1 + slides.length) % slides.length;
+    setCurrentIndex(newIndex);
+    navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
 
   // Manual navigation on user interaction
-  const handleButtUserTriggered = (index: number) => {
-    setCurrentIndex(index);
-    navigate(`/ricoSlides/${index}`);
+  const handleButtUserTriggered = (newIndex: number) => {
+    setCurrentIndex(newIndex);
+    navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
 
   // Manual navigation on user interaction
   const handleNextUserTriggered = () => {
-    const nextIndex = (currentIndex + 1) % slides.length;
-    setCurrentIndex(nextIndex);
-    navigate(`/ricoSlides/${nextIndex}`);
+    const newIndex = (currentIndex + 1) % slides.length;
+    setCurrentIndex(newIndex);
+    navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
 
   return (
@@ -87,7 +87,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
             className={`${styles.slide}${index === currentIndex ? ` ${styles.active}` : ""}`}
           >
             <img
-              src={"/assets/images/" + slide.filename}
+              src={"/assets/images/" + slide.background}
               alt={`Slide ${index}`}
             />
           </div>

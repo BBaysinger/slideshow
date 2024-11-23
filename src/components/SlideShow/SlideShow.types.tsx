@@ -1,6 +1,6 @@
 interface Slide {
-  id: string;
-  filename: string;
+  slug: string;
+  background: string;
   thumbnail: string;
   foreground?: string;
   content?: React.ReactNode;
