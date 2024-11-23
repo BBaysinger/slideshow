@@ -1,5 +1,6 @@
-import SlideShow from "components/SlideShow/SlideShow";
-import { Slide } from "components/SlideShow/SlideShow.types";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Slideshow from "components/Slideshow/Slideshow";
+import { Slide } from "components/Slideshow/Slideshow.types";
 import "./App.css";
 
 function App() {
@@ -48,10 +49,17 @@ function App() {
       alt: "Slide 6",
     },
   ];
+
   return (
-    <>
-      <SlideShow slides={slides}></SlideShow>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={<a href="/ricoSlideshow" className="ricolink">To the Rico slideshow...</a>}
+        />
+        <Route path="/ricoSlideshow" element={<Slideshow slides={slides} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

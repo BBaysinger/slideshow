@@ -1,10 +1,10 @@
 import React, { useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import "./SlideShow.module.scss";
-import { SlideShowProps } from "./SlideShow.types";
+import "./Slideshow.module.scss";
+import { SlideshowProps } from "./Slideshow.types";
 
-const SlideShow: React.FC<SlideShowProps> = ({
+const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
   interval = 3000,
@@ -38,15 +38,16 @@ const SlideShow: React.FC<SlideShowProps> = ({
   // Handle manual navigation
   const handlePreviousSlide = () => {
     const prevIndex = (currentIndex - 1 + slides.length) % slides.length;
-    navigate(`?slide=${prevIndex}`);
+    navigate(`/ricoSlides/${prevIndex}`);
   };
 
   const handleSelectSlide = (index: number) => {
-    navigate(`?slide=${index}`);
+    navigate(`/ricoSlides/${index}`);
   };
 
   return (
     <div className="slideshow">
+      test
       <div className="slideshow-container">
         {slides.map((slide, index) => (
           <div
@@ -66,7 +67,10 @@ const SlideShow: React.FC<SlideShowProps> = ({
             onClick={() => handleSelectSlide(index)}
             className={index === currentIndex ? "active" : ""}
           >
-            <img src={slides[index].filename} alt={slides[index].alt || `Slide ${index}`} />
+            <img
+              src={slides[index].filename}
+              alt={slides[index].alt || `Slide ${index}`}
+            />
           </button>
         ))}
       </div>
@@ -74,4 +78,4 @@ const SlideShow: React.FC<SlideShowProps> = ({
   );
 };
 
-export default SlideShow;
+export default Slideshow;

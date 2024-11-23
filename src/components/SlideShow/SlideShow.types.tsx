@@ -8,7 +8,7 @@ interface Slide {
   desc?: string;
 }
 
-interface SlideShowProps {
+interface SlideshowProps {
   slides: Slide[];
   autoSlide?: boolean;
   interval?: number;
@@ -16,4 +16,4 @@ interface SlideShowProps {
   loop?: boolean;
 }
 
-export type { SlideShowProps, Slide };
+export type { SlideshowProps, Slide };
