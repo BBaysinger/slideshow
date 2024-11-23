@@ -25,8 +25,10 @@
     background-repeat: no-repeat; /* Prevent tiling */
     opacity: 0; /* Hidden by default */
     visibility: hidden; /* Prevent interaction when hidden */
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; /* Smooth fade */
     min-height: 100px;
+    transform: scale(1.1);
+    transition: opacity 1s ease-in-out, transform 5s ease-in-out;
+    will-change: opacity, transform;
     
     img {
       max-width: 100vw;
@@ -36,6 +38,36 @@
       opacity: 1; /* Fully visible */
       visibility: visible; /* Allow interaction */
       z-index: 10; /* Bring to the front */
+      transform: scale(0.5); // Slight zoom for the Ken Burns effect    
     }
   }
+}
+
+.slideshowNavigation {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.slideshowIndicators {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.thumbnail {
+  margin: 0 5px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.thumbnail.active {
+  opacity: 1;
 }
