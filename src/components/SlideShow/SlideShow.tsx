@@ -31,7 +31,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   // Extract the current slide index from the route for user-triggered navigation
   const currentRouteIndex = parseInt(
     new URLSearchParams(location.search).get("slide") || "0",
-    10,
+    10
   );
 
   // Maintain local state for auto-slide index
@@ -108,16 +108,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
             key={index}
             className={`${styles.slide}${index === currentIndex ? ` ${styles.active}` : ""}`}
             style={{
-              backgroundImage: preloadedSlides.has(index)
-                ? `url(/assets/images/${slide.background})`
-                : "none", // Only show background if preloaded
+              backgroundImage: `url(/assets/images/${slide.background})`,
+              opacity: preloadedSlides.has(index) || index === currentIndex ? 1 : 0,
+              transition: "opacity 0.5s ease-in-out", // Optional: smooth fade-in
             }}
           >
+            {/* Hidden <img> tag for fallback preloading */}
             <img
               loading="lazy"
               src={`/assets/images/${slide.background}`}
               alt={`Slide ${index}`}
-              style={{ display: "none" }} // Prevent image flash, only for background preload
+              style={{ display: "none" }} // Prevent visible image flash
             />
           </div>
         ))}

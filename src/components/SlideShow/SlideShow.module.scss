@@ -12,15 +12,30 @@
   position: relative;
   width: 100%;
   overflow: hidden;
+  min-height: 300px;
 
   .slide {
-    display: none;
+    position: absolute; /* Ensure slides are stacked */
+    top: 0;
+    left: 0;
+    width: 100%; /* Match container size */
+    height: 100%;
+    background-size: cover; /* Ensure background images fill the area */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent tiling */
+    opacity: 0; /* Hidden by default */
+    visibility: hidden; /* Prevent interaction when hidden */
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; /* Smooth fade */
+    min-height: 100px;
+    
     img {
       max-width: 100vw;
     }
 
     &.active {
-      display: block;
+      opacity: 1; /* Fully visible */
+      visibility: visible; /* Allow interaction */
+      z-index: 10; /* Bring to the front */
     }
   }
 }
