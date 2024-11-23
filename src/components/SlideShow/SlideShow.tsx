@@ -37,6 +37,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
   // Maintain local state for auto-slide index
   const [currentIndex, setCurrentIndex] = useState(currentRouteIndex);
 
+  // Keep track of which slides have been preloaded
+  const [preloadedSlides, setPreloadedSlides] = useState(new Set<number>([currentRouteIndex]));
+
   // Sync local state with route on user-triggered navigation
   useEffect(() => {
     setCurrentIndex(currentRouteIndex);
@@ -65,18 +68,37 @@ const Slideshow: React.FC<SlideshowProps> = ({
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
 
-  // Manual navigation on user interaction
   const handleButtUserTriggered = (newIndex: number) => {
     setCurrentIndex(newIndex);
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
 
-  // Manual navigation on user interaction
   const handleNextUserTriggered = () => {
     const newIndex = (currentIndex + 1) % slides.length;
     setCurrentIndex(newIndex);
     navigate(`/ricoSlideshow/${slides[newIndex].slug}`);
   };
+
+  // Sequentially preload background images
+  useEffect(() => {
+    const preloadSlide = (index: number) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.src = `/assets/images/${slides[index].background}`;
+        img.onload = () => resolve();
+      });
+    };
+
+    const sequentialPreload = async () => {
+      for (let i = 1; i < slides.length; i++) {
+        const nextIndex = (currentRouteIndex + i) % slides.length; // Preload in slideshow order
+        await preloadSlide(nextIndex);
+        setPreloadedSlides((prev) => new Set(prev).add(nextIndex)); // Mark as preloaded
+      }
+    };
+
+    sequentialPreload();
+  }, [currentRouteIndex, slides]);
 
   return (
     <div className="playstationSlideshow">
@@ -85,10 +107,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
           <div
             key={index}
             className={`${styles.slide}${index === currentIndex ? ` ${styles.active}` : ""}`}
+            style={{
+              backgroundImage: preloadedSlides.has(index)
+                ? `url(/assets/images/${slide.background})`
+                : "none", // Only show background if preloaded
+            }}
           >
             <img
-              src={"/assets/images/" + slide.background}
+              loading="lazy"
+              src={`/assets/images/${slide.background}`}
               alt={`Slide ${index}`}
+              style={{ display: "none" }} // Prevent image flash, only for background preload
             />
           </div>
         ))}
@@ -107,7 +136,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
             className={`${styles.thumbnail}${index === currentIndex ? ` ${styles.active}` : ""}`}
           >
             <img
-              src={"/assets/images/" + slides[index].thumbnail}
+              src={`/assets/images/${slides[index].thumbnail}`}
               alt={slides[index].alt || `Button ${index}`}
             />
           </button>
