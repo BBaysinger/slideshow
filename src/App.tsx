@@ -67,11 +67,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
-          path="rico-slideshow/*"
+          path="rico-slideshow/:slug"
           element={<Slideshow slides={slides} basePath="/rico-slideshow" />}
         />
         <Route
-          path="second-slideshow/*"
+          path="second-slideshow/:slug"
           element={<Slideshow slides={slides} basePath="/second-slideshow" />}
         />
       </Routes>
