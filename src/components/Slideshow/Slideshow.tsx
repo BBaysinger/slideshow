@@ -7,7 +7,7 @@ import styles from "./Slideshow.module.scss";
 const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
-  interval = 3000,
+  interval = 6000,
   prev = "Previous",
   next = "Next",
   basePath = "/slideshow",
@@ -130,7 +130,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
   };
 
   return (
-    <div className="playstationSlideshow">
+    <div
+      className="playstationSlideshow"
+      aria-roledescription="carousel"
+      aria-label="Slideshow"
+    >
       <div className={styles.slideContainer}>
         {slides.map((slide, index) => (
           <div
@@ -141,11 +145,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
             style={{
               backgroundImage: `url(/assets/images/${slide.background})`,
             }}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${
+              slide.alt || `Slide ${index + 1} of ${slides.length}`
+            }`}
+            aria-hidden={index !== currentIndex}
           >
             <img
               loading={getLoadingAttribute(index)}
               src={`/assets/images/${slide.background}`}
-              alt={slide.alt || `Slide ${index}`}
+              alt={slide.alt || `Slide ${index + 1}`}
               onLoad={() => handleImageLoad(index)}
               style={{ display: "none" }}
             />
@@ -154,11 +164,27 @@ const Slideshow: React.FC<SlideshowProps> = ({
       </div>
 
       <div className={styles.slideshowNavigation}>
-        {prev && <button onClick={handlePrevUserTriggered}>{prev}</button>}
-        {next && <button onClick={handleNextUserTriggered}>{next}</button>}
+        {prev && (
+          <button
+            onClick={handlePrevUserTriggered}
+            aria-label="Previous slide"
+            aria-controls="slideshow"
+          >
+            {prev}
+          </button>
+        )}
+        {next && (
+          <button
+            onClick={handleNextUserTriggered}
+            aria-label="Next slide"
+            aria-controls="slideshow"
+          >
+            {next}
+          </button>
+        )}
       </div>
 
-      <div className={styles.slideshowIndicators}>
+      <div className={styles.slideshowIndicators} role="tablist">
         {slides.map((_, index) => (
           <button
             key={index}
@@ -166,10 +192,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
             className={`${styles.thumbnail} ${
               index === currentIndex ? styles.active : ""
             }`}
+            role="tab"
+            aria-selected={index === currentIndex}
+            aria-controls={`slide-${index}`}
+            id={`tab-${index}`}
           >
             <img
               src={`/assets/images/${slides[index].thumbnail}`}
-              alt={slides[index].alt || `Button ${index}`}
+              alt={slides[index].alt || `Slide thumbnail ${index + 1}`}
             />
           </button>
         ))}

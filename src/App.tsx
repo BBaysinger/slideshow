@@ -74,7 +74,6 @@ function App() {
               basePath="/rico-slideshow"
               next=""
               prev=""
-              stopAutoSlideOnInteraction={true}
             />
           }
         />
