@@ -19,10 +19,10 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   // Initialize the current index, defaulting to the first slide if the route is invalid
   const [currentIndex, setCurrentIndex] = useState(() =>
-    currentRouteIndex !== -1 ? currentRouteIndex : 0
+    currentRouteIndex !== -1 ? currentRouteIndex : 0,
   );
   const [loadedImages, setLoadedImages] = useState<Set<number>>(
-    new Set([currentIndex]) // Start with the initial slide image loaded
+    new Set([currentIndex]), // Start with the initial slide image loaded
   );
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 

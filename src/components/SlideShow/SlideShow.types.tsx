@@ -1,11 +1,13 @@
+import React from "react";
+
 interface Slide {
   slug: string;
   background: string;
   thumbnail: string;
   foreground?: string;
-  content?: React.ReactNode;
   alt?: string;
   desc?: string;
+  content?: React.ReactNode;
 }
 
 interface SlideshowProps {
@@ -14,6 +16,8 @@ interface SlideshowProps {
   interval?: number;
   prev?: string;
   next?: string;
+  content?: React.ReactNode;
+  heading?: React.ReactNode;
 }
 
 export type { SlideshowProps, Slide };
