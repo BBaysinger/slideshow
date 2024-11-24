@@ -12,7 +12,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   next = "Next >",
   basePath = "/slideshow",
   enableRouting = true,
-  stopAutoSlideOnInteraction = false,
+  restartDelay = 20000,
 }) => {
   if (enableRouting && !basePath) {
     throw new Error("basePath is required when routing is enabled.");
@@ -31,31 +31,41 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const [loadedImages, setLoadedImages] = useState<Set<number>>(
     new Set([currentIndex]),
   );
-  const [isUserInteracted, setIsUserInteracted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
   const clearTimer = () => {
     if (timerRef.current) {
-      clearInterval(timerRef.current);
+      clearTimeout(timerRef.current); // Clear timeout
+      clearInterval(timerRef.current); // Clear interval
       timerRef.current = null;
     }
   };
 
   const restartTimer = useCallback(() => {
     clearTimer();
-    if (autoSlide && (!stopAutoSlideOnInteraction || !isUserInteracted)) {
+    if (autoSlide) {
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
     }
-  }, [
-    autoSlide,
-    interval,
-    slides.length,
-    isUserInteracted,
-    stopAutoSlideOnInteraction,
-  ]);
+  }, [autoSlide, interval, slides.length]);
+
+  const handleUserInteraction = useCallback(
+    (newIndex: number, action: () => void) => {
+      setCurrentIndex(newIndex);
+      action();
+
+      clearTimer();
+
+      if (restartDelay > 0) {
+        timerRef.current = setTimeout(() => {
+          restartTimer();
+        }, restartDelay);
+      }
+    },
+    [restartDelay, restartTimer],
+  );
 
   useEffect(() => {
     if (enableRouting) {
@@ -77,25 +87,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
   ]);
 
   useEffect(() => {
-    restartTimer();
+    if (autoSlide) {
+      restartTimer();
+    }
     return clearTimer;
-  }, [restartTimer]);
+  }, [autoSlide, restartTimer]);
 
   useEffect(() => {
-    // Focus the active thumbnail when the currentIndex changes
     if (thumbnailRefs.current[currentIndex]) {
       thumbnailRefs.current[currentIndex].focus();
     }
   }, [currentIndex]);
-
-  const handleUserInteraction = useCallback(
-    (newIndex: number, action: () => void) => {
-      setCurrentIndex(newIndex);
-      setIsUserInteracted(true);
-      action();
-    },
-    [],
-  );
 
   const handlePrevUserTriggered = useCallback(() => {
     handleUserInteraction(
@@ -106,7 +108,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
             `${basePath}/${slides[(currentIndex - 1 + slides.length) % slides.length].slug}`,
           );
         }
-        restartTimer();
       },
     );
   }, [
@@ -116,7 +117,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
     basePath,
     navigate,
     handleUserInteraction,
-    restartTimer,
   ]);
 
   const handleButtonUserTriggered = useCallback(
@@ -125,17 +125,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
         if (enableRouting) {
           navigate(`${basePath}/${slides[newIndex].slug}`);
         }
-        restartTimer();
       });
     },
-    [
-      basePath,
-      slides,
-      enableRouting,
-      navigate,
-      handleUserInteraction,
-      restartTimer,
-    ],
+    [basePath, slides, enableRouting, navigate, handleUserInteraction],
   );
 
   const handleNextUserTriggered = useCallback(() => {
@@ -145,7 +137,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
           `${basePath}/${slides[(currentIndex + 1) % slides.length].slug}`,
         );
       }
-      restartTimer();
     });
   }, [
     currentIndex,
@@ -154,7 +145,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
     basePath,
     navigate,
     handleUserInteraction,
-    restartTimer,
   ]);
 
   const handleImageLoad = (index: number) => {
@@ -246,7 +236,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         {slides.map((_, index) => (
           <button
             key={index}
-            ref={(el) => (thumbnailRefs.current[index] = el!)} // Assign the ref
+            ref={(el) => (thumbnailRefs.current[index] = el!)}
             onClick={() => handleButtonUserTriggered(index)}
             className={`${styles.thumbnail} ${
               index === currentIndex ? styles.active : ""

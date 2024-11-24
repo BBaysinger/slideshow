@@ -20,7 +20,7 @@ interface SlideshowProps {
   content?: React.ReactNode;
   heading?: React.ReactNode;
   enableRouting?: boolean;
-  stopAutoSlideOnInteraction?: boolean;
+  restartDelay?: number;
 }
 
 export type { SlideshowProps, Slide };
