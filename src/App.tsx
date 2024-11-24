@@ -1,8 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 import Slideshow from "components/Slideshow/Slideshow";
 import { Slide } from "components/Slideshow/Slideshow.types";
-import "./App.css";
 
 function App() {
   const slides: Slide[] = [
@@ -10,7 +9,6 @@ function App() {
       slug: "one",
       background: "1-background.jpg",
       thumbnail: "1-thumbnail.jpg",
-      foreground: "1-foreground.jpg",
       desc: "",
       alt: "Slide 1",
       content: (
@@ -29,7 +27,7 @@ function App() {
       thumbnail: "2-thumbnail.jpg",
       desc: "",
       alt: "Slide 2",
-      content: <div></div>,
+      content: <div>Slide 2 Content</div>,
     },
     {
       slug: "three",
@@ -37,7 +35,7 @@ function App() {
       thumbnail: "3-thumbnail.jpg",
       desc: "",
       alt: "Slide 3",
-      content: <div></div>,
+      content: <div>Slide 3 Content</div>,
     },
     {
       slug: "four",
@@ -45,7 +43,7 @@ function App() {
       thumbnail: "4-thumbnail.jpg",
       desc: "",
       alt: "Slide 4",
-      content: <div></div>,
+      content: <div>Slide 4 Content</div>,
     },
     {
       slug: "five",
@@ -53,7 +51,7 @@ function App() {
       thumbnail: "5-thumbnail.jpg",
       desc: "",
       alt: "Slide 5",
-      content: <div></div>,
+      content: <div>Slide 5 Content</div>,
     },
     {
       slug: "six",
@@ -61,34 +59,20 @@ function App() {
       thumbnail: "6-thumbnail.jpg",
       desc: "",
       alt: "Slide 6",
-      content: <div></div>,
+      content: <div>Slide 6 Content</div>,
     },
   ];
-
-  const heading = <h1>More from Rico the Dog</h1>;
 
   return (
     <BrowserRouter>
       <Routes>
         <Route
-          path="/"
-          element={
-            <a href="/ricoSlideshow" className="ricolink">
-              To the Rico slideshow...
-            </a>
-          }
+          path="rico-slideshow/*"
+          element={<Slideshow slides={slides} basePath="/rico-slideshow" />}
         />
         <Route
-          path="/ricoSlideshow/:slug"
-          element={
-            <Slideshow
-              heading={heading}
-              slides={slides}
-              interval={6000}
-              prev={""}
-              next={""}
-            />
-          }
+          path="second-slideshow/*"
+          element={<Slideshow slides={slides} basePath="/second-slideshow" />}
         />
       </Routes>
     </BrowserRouter>
