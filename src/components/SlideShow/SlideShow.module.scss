@@ -28,23 +28,28 @@
   }
 }
 
-.slideshowNavigation {
+.slideshowControls {
   display: flex;
   justify-content: space-between;
   position: absolute;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
+  button:focus {
+    outline: 2px solid #0078d7; /* Visible focus style */
+  }
 }
 
-.slideshowIndicators {
-  display: flex;
-  justify-content: center;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 10px 0;
-}
+// .slideshowIndicators {
+//   border: 1px solid #0078d7;
+
+//   display: flex;
+//   justify-content: center;
+//   position: absolute;
+//   bottom: 0;
+//   width: 100%;
+//   padding: 10px 0;
+// }
 
 .thumbnail {
   margin: 0 5px;

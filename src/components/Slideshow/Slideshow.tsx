@@ -8,8 +8,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
   interval = 6000,
-  prev = "Previous",
-  next = "Next",
+  prev = "< Previous",
+  next = "Next >",
   basePath = "/slideshow",
   enableRouting = true,
   stopAutoSlideOnInteraction = false,
@@ -80,13 +80,16 @@ const Slideshow: React.FC<SlideshowProps> = ({
     return clearTimer;
   }, [restartTimer]);
 
-  const handleUserInteraction = (newIndex: number, action: () => void) => {
-    setCurrentIndex(newIndex);
-    setIsUserInteracted(true);
-    action();
-  };
+  const handleUserInteraction = useCallback(
+    (newIndex: number, action: () => void) => {
+      setCurrentIndex(newIndex);
+      setIsUserInteracted(true);
+      action();
+    },
+    [],
+  );
 
-  const handlePrevUserTriggered = () =>
+  const handlePrevUserTriggered = useCallback(() => {
     handleUserInteraction(
       (currentIndex - 1 + slides.length) % slides.length,
       () => {
@@ -98,16 +101,36 @@ const Slideshow: React.FC<SlideshowProps> = ({
         restartTimer();
       },
     );
+  }, [
+    currentIndex,
+    slides,
+    enableRouting,
+    basePath,
+    navigate,
+    handleUserInteraction,
+    restartTimer,
+  ]);
 
-  const handleButtonUserTriggered = (newIndex: number) =>
-    handleUserInteraction(newIndex, () => {
-      if (enableRouting) {
-        navigate(`${basePath}/${slides[newIndex].slug}`);
-      }
-      restartTimer();
-    });
+  const handleButtonUserTriggered = useCallback(
+    (newIndex: number) => {
+      handleUserInteraction(newIndex, () => {
+        if (enableRouting) {
+          navigate(`${basePath}/${slides[newIndex].slug}`);
+        }
+        restartTimer();
+      });
+    },
+    [
+      basePath,
+      slides,
+      enableRouting,
+      navigate,
+      handleUserInteraction,
+      restartTimer,
+    ],
+  );
 
-  const handleNextUserTriggered = () =>
+  const handleNextUserTriggered = useCallback(() => {
     handleUserInteraction((currentIndex + 1) % slides.length, () => {
       if (enableRouting) {
         navigate(
@@ -116,6 +139,15 @@ const Slideshow: React.FC<SlideshowProps> = ({
       }
       restartTimer();
     });
+  }, [
+    currentIndex,
+    slides,
+    enableRouting,
+    basePath,
+    navigate,
+    handleUserInteraction,
+    restartTimer,
+  ]);
 
   const handleImageLoad = (index: number) => {
     setLoadedImages((prev) => new Set(prev).add(index));
@@ -129,15 +161,33 @@ const Slideshow: React.FC<SlideshowProps> = ({
     return undefined;
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        handlePrevUserTriggered();
+      } else if (event.key === "ArrowRight") {
+        handleNextUserTriggered();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handlePrevUserTriggered, handleNextUserTriggered]);
+
   return (
     <div
       className="playstationSlideshow"
       aria-roledescription="carousel"
       aria-label="Slideshow"
+      aria-live="polite"
     >
       <div className={styles.slideContainer}>
         {slides.map((slide, index) => (
           <div
+            tabIndex={index === currentIndex ? 0 : -1}
             key={index}
             className={`${styles.slide} ${
               index === currentIndex ? styles.active : ""
@@ -163,7 +213,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         ))}
       </div>
 
-      <div className={styles.slideshowNavigation}>
+      <div className={styles.slideshowControls}>
         {prev && (
           <button
             onClick={handlePrevUserTriggered}
@@ -204,6 +254,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
           </button>
         ))}
       </div>
+      <p className="visually-hidden">
+        Use the left and right arrow keys to navigate the slideshow.
+      </p>
     </div>
   );
 };
