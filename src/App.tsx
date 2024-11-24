@@ -68,12 +68,7 @@ function App() {
       <Routes>
         <Route
           path="rico-slideshow/:slug"
-          element={
-            <Slideshow
-              slides={slides}
-              basePath="/rico-slideshow"
-            />
-          }
+          element={<Slideshow slides={slides} basePath="/rico-slideshow" />}
         />
         <Route
           path="second-slideshow/:slug"

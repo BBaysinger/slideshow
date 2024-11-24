@@ -33,6 +33,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   );
   const [isUserInteracted, setIsUserInteracted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
   const clearTimer = () => {
     if (timerRef.current) {
@@ -79,6 +80,13 @@ const Slideshow: React.FC<SlideshowProps> = ({
     restartTimer();
     return clearTimer;
   }, [restartTimer]);
+
+  useEffect(() => {
+    // Focus the active thumbnail when the currentIndex changes
+    if (thumbnailRefs.current[currentIndex]) {
+      thumbnailRefs.current[currentIndex].focus();
+    }
+  }, [currentIndex]);
 
   const handleUserInteraction = useCallback(
     (newIndex: number, action: () => void) => {
@@ -234,10 +242,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
         )}
       </div>
 
-      <div className={styles.thumbnailButtonControls} role="tablist">
+      <div className={styles.buttonControls} role="tablist">
         {slides.map((_, index) => (
           <button
             key={index}
+            ref={(el) => (thumbnailRefs.current[index] = el!)} // Assign the ref
             onClick={() => handleButtonUserTriggered(index)}
             className={`${styles.thumbnail} ${
               index === currentIndex ? styles.active : ""
@@ -247,10 +256,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
             aria-controls={`slide-${index}`}
             id={`tab-${index}`}
           >
-            <img
-              src={`/assets/images/${slides[index].thumbnail}`}
-              alt={slides[index].alt || `Slide thumbnail ${index + 1}`}
-            />
+            {slides[index].thumbnail ? (
+              <img
+                src={`/assets/images/${slides[index].thumbnail}`}
+                alt={slides[index].alt || `Slide thumbnail ${index + 1}`}
+              />
+            ) : (
+              <span className="visually-hidden">{`Slide ${index + 1}`}</span>
+            )}
           </button>
         ))}
       </div>
