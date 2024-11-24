@@ -213,7 +213,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         ))}
       </div>
 
-      <div className={styles.slideshowControls}>
+      <div className={styles.arrowButtonControls}>
         {prev && (
           <button
             onClick={handlePrevUserTriggered}
@@ -234,7 +234,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         )}
       </div>
 
-      <div className={styles.slideshowIndicators} role="tablist">
+      <div className={styles.thumbnailButtonControls} role="tablist">
         {slides.map((_, index) => (
           <button
             key={index}

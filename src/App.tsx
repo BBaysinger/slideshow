@@ -72,8 +72,6 @@ function App() {
             <Slideshow
               slides={slides}
               basePath="/rico-slideshow"
-              next=""
-              prev=""
             />
           }
         />
