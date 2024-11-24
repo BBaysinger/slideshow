@@ -12,14 +12,15 @@ interface Slide {
 
 interface SlideshowProps {
   slides: Slide[];
+  basePath?: string;
   autoSlide?: boolean;
   interval?: number;
   prev?: string;
   next?: string;
-  basePath: string;
   content?: React.ReactNode;
   heading?: React.ReactNode;
   enableRouting?: boolean;
+  stopAutoSlideOnInteraction?: boolean;
 }
 
 export type { SlideshowProps, Slide };

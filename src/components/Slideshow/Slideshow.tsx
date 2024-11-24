@@ -10,24 +10,28 @@ const Slideshow: React.FC<SlideshowProps> = ({
   interval = 3000,
   prev = "Previous",
   next = "Next",
-  basePath = "/slideshow", // Default base path for routes
-  enableRouting = true, // New prop to enable or disable routing
+  basePath = "/slideshow",
+  enableRouting = true,
+  stopAutoSlideOnInteraction = false,
 }) => {
+  if (enableRouting && !basePath) {
+    throw new Error("basePath is required when routing is enabled.");
+  }
+
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  // Find the index of the current slide based on the slug in the route
   const currentRouteIndex = enableRouting
     ? slides.findIndex((slide) => slide.slug === slug)
     : -1;
 
-  // Initialize the current index, defaulting to the first slide if the route is invalid
   const [currentIndex, setCurrentIndex] = useState(() =>
     currentRouteIndex !== -1 ? currentRouteIndex : 0,
   );
   const [loadedImages, setLoadedImages] = useState<Set<number>>(
-    new Set([currentIndex]), // Start with the initial slide image loaded
+    new Set([currentIndex]),
   );
+  const [isUserInteracted, setIsUserInteracted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearTimer = () => {
@@ -39,20 +43,24 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const restartTimer = useCallback(() => {
     clearTimer();
-    if (autoSlide) {
+    if (autoSlide && (!stopAutoSlideOnInteraction || !isUserInteracted)) {
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
     }
-  }, [autoSlide, interval, slides.length]);
+  }, [
+    autoSlide,
+    interval,
+    slides.length,
+    isUserInteracted,
+    stopAutoSlideOnInteraction,
+  ]);
 
-  // Sync the currentIndex with the route whenever the slug changes
   useEffect(() => {
     if (enableRouting) {
       if (currentRouteIndex !== -1) {
         setCurrentIndex(currentRouteIndex);
       } else {
-        // Redirect to the first slide if the slug is invalid
         navigate(`${basePath}/${slides[0].slug}`);
       }
     }
@@ -69,45 +77,56 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   useEffect(() => {
     restartTimer();
-    return clearTimer; // Clear timer on component unmount
+    return clearTimer;
   }, [restartTimer]);
 
-  const handlePrevUserTriggered = () => {
-    const newIndex = (currentIndex - 1 + slides.length) % slides.length;
+  const handleUserInteraction = (newIndex: number, action: () => void) => {
     setCurrentIndex(newIndex);
-    if (enableRouting) {
-      navigate(`${basePath}/${slides[newIndex].slug}`);
-    }
-    restartTimer();
+    setIsUserInteracted(true);
+    action();
   };
 
-  const handleButtUserTriggered = (newIndex: number) => {
-    setCurrentIndex(newIndex);
-    if (enableRouting) {
-      navigate(`${basePath}/${slides[newIndex].slug}`);
-    }
-    restartTimer();
-  };
+  const handlePrevUserTriggered = () =>
+    handleUserInteraction(
+      (currentIndex - 1 + slides.length) % slides.length,
+      () => {
+        if (enableRouting) {
+          navigate(
+            `${basePath}/${slides[(currentIndex - 1 + slides.length) % slides.length].slug}`,
+          );
+        }
+        restartTimer();
+      },
+    );
 
-  const handleNextUserTriggered = () => {
-    const newIndex = (currentIndex + 1) % slides.length;
-    setCurrentIndex(newIndex);
-    if (enableRouting) {
-      navigate(`${basePath}/${slides[newIndex].slug}`);
-    }
-    restartTimer();
-  };
+  const handleButtonUserTriggered = (newIndex: number) =>
+    handleUserInteraction(newIndex, () => {
+      if (enableRouting) {
+        navigate(`${basePath}/${slides[newIndex].slug}`);
+      }
+      restartTimer();
+    });
+
+  const handleNextUserTriggered = () =>
+    handleUserInteraction((currentIndex + 1) % slides.length, () => {
+      if (enableRouting) {
+        navigate(
+          `${basePath}/${slides[(currentIndex + 1) % slides.length].slug}`,
+        );
+      }
+      restartTimer();
+    });
 
   const handleImageLoad = (index: number) => {
-    setLoadedImages((prev) => new Set(prev).add(index)); // Mark image as loaded
+    setLoadedImages((prev) => new Set(prev).add(index));
   };
 
   const getLoadingAttribute = (index: number): "eager" | "lazy" | undefined => {
-    if (index === currentIndex) return "eager"; // Load the deep-linked image eagerly
+    if (index === currentIndex) return "eager";
     if (loadedImages.has((index - 1 + slides.length) % slides.length)) {
-      return "lazy"; // Load sequentially only if the previous slide is loaded
+      return "lazy";
     }
-    return undefined; // Defer loading until the previous slide is ready
+    return undefined;
   };
 
   return (
@@ -127,7 +146,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
               loading={getLoadingAttribute(index)}
               src={`/assets/images/${slide.background}`}
               alt={slide.alt || `Slide ${index}`}
-              onLoad={() => handleImageLoad(index)} // Notify when image is loaded
+              onLoad={() => handleImageLoad(index)}
               style={{ display: "none" }}
             />
           </div>
@@ -143,7 +162,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         {slides.map((_, index) => (
           <button
             key={index}
-            onClick={() => handleButtUserTriggered(index)}
+            onClick={() => handleButtonUserTriggered(index)}
             className={`${styles.thumbnail} ${
               index === currentIndex ? styles.active : ""
             }`}
