@@ -14,6 +14,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
   enableRouting = true,
   restartDelay = 20000,
 }) => {
+  const isFirstRender = useRef(true);
+
   if (enableRouting && !basePath) {
     throw new Error("basePath is required when routing is enabled.");
   }
@@ -34,28 +36,39 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
-  const clearTimer = () => {
+  const clearTimer = useCallback(() => {
     if (timerRef.current) {
-      clearTimeout(timerRef.current); // Clear timeout
-      clearInterval(timerRef.current); // Clear interval
+      clearTimeout(timerRef.current);
+      clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  };
+  }, []);
 
-  const restartTimer = useCallback(() => {
+  const startAutoSlide = useCallback(() => {
     clearTimer();
     if (autoSlide) {
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
     }
-  }, [autoSlide, interval, slides.length]);
+  }, [autoSlide, interval, slides.length, clearTimer]);
+
+  const restartTimer = useCallback(() => {
+    clearTimer();
+    if (restartDelay === -1) {
+      return;
+    }
+    if (autoSlide) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+      }, interval);
+    }
+  }, [autoSlide, interval, restartDelay, slides.length, clearTimer]);
 
   const handleUserInteraction = useCallback(
     (newIndex: number, action: () => void) => {
       setCurrentIndex(newIndex);
       action();
-
       clearTimer();
 
       if (restartDelay > 0) {
@@ -64,7 +77,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         }, restartDelay);
       }
     },
-    [restartDelay, restartTimer],
+    [restartDelay, restartTimer, clearTimer],
   );
 
   useEffect(() => {
@@ -75,23 +88,27 @@ const Slideshow: React.FC<SlideshowProps> = ({
         navigate(`${basePath}/${slides[0].slug}`);
       }
     }
-    restartTimer();
+    if (isFirstRender.current) {
+      startAutoSlide();
+      isFirstRender.current = false;
+    }
   }, [
     slug,
     currentRouteIndex,
     slides,
     navigate,
-    restartTimer,
+    startAutoSlide,
     basePath,
     enableRouting,
+    restartDelay,
   ]);
 
-  useEffect(() => {
-    if (autoSlide) {
-      restartTimer();
-    }
-    return clearTimer;
-  }, [autoSlide, restartTimer]);
+  // useEffect(() => {
+  //   if (autoSlide && restartDelay !== -1) {
+  //     startAutoSlide();
+  //   }
+  //   return clearTimer;
+  // }, [autoSlide, startAutoSlide, restartDelay, clearTimer]);
 
   useEffect(() => {
     if (thumbnailRefs.current[currentIndex]) {
