@@ -11,12 +11,15 @@ const Slideshow: React.FC<SlideshowProps> = ({
   prev = "Previous",
   next = "Next",
   basePath = "/slideshow", // Default base path for routes
+  enableRouting = true, // New prop to enable or disable routing
 }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   // Find the index of the current slide based on the slug in the route
-  const currentRouteIndex = slides.findIndex((slide) => slide.slug === slug);
+  const currentRouteIndex = enableRouting
+    ? slides.findIndex((slide) => slide.slug === slug)
+    : -1;
 
   // Initialize the current index, defaulting to the first slide if the route is invalid
   const [currentIndex, setCurrentIndex] = useState(() =>
@@ -45,14 +48,24 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   // Sync the currentIndex with the route whenever the slug changes
   useEffect(() => {
-    if (currentRouteIndex !== -1) {
-      setCurrentIndex(currentRouteIndex);
-    } else {
-      // Redirect to the first slide if the slug is invalid
-      navigate(`${basePath}/${slides[0].slug}`);
+    if (enableRouting) {
+      if (currentRouteIndex !== -1) {
+        setCurrentIndex(currentRouteIndex);
+      } else {
+        // Redirect to the first slide if the slug is invalid
+        navigate(`${basePath}/${slides[0].slug}`);
+      }
     }
     restartTimer();
-  }, [slug, currentRouteIndex, slides, navigate, restartTimer, basePath]);
+  }, [
+    slug,
+    currentRouteIndex,
+    slides,
+    navigate,
+    restartTimer,
+    basePath,
+    enableRouting,
+  ]);
 
   useEffect(() => {
     restartTimer();
@@ -62,21 +75,26 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const handlePrevUserTriggered = () => {
     const newIndex = (currentIndex - 1 + slides.length) % slides.length;
     setCurrentIndex(newIndex);
-    navigate(`${basePath}/${slides[newIndex].slug}`);
+    if (enableRouting) {
+      navigate(`${basePath}/${slides[newIndex].slug}`);
+    }
     restartTimer();
   };
 
   const handleButtUserTriggered = (newIndex: number) => {
     setCurrentIndex(newIndex);
-    navigate(`${basePath}/${slides[newIndex].slug}`);
-    console.log("newIndex", slides[newIndex].slug);
+    if (enableRouting) {
+      navigate(`${basePath}/${slides[newIndex].slug}`);
+    }
     restartTimer();
   };
 
   const handleNextUserTriggered = () => {
     const newIndex = (currentIndex + 1) % slides.length;
     setCurrentIndex(newIndex);
-    navigate(`${basePath}/${slides[newIndex].slug}`);
+    if (enableRouting) {
+      navigate(`${basePath}/${slides[newIndex].slug}`);
+    }
     restartTimer();
   };
 

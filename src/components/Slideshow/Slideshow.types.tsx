@@ -19,6 +19,7 @@ interface SlideshowProps {
   basePath: string;
   content?: React.ReactNode;
   heading?: React.ReactNode;
+  enableRouting?: boolean;
 }
 
 export type { SlideshowProps, Slide };
