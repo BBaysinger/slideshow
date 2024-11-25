@@ -13,7 +13,7 @@ interface Slide {
 interface SlideshowProps {
   slides: Slide[];
   basePath?: string;
-  autoSlide?: boolean;
+  initialAutoSlide?: boolean;
   interval?: number;
   content?: React.ReactNode;
   heading?: React.ReactNode;

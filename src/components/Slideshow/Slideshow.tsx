@@ -6,7 +6,7 @@ import styles from "./Slideshow.module.scss";
 
 const Slideshow: React.FC<SlideshowProps> = ({
   slides,
-  autoSlide = true,
+  initialAutoSlide = true,
   interval = 6000,
   basePath = "/slideshow",
   enableRouting = true,
@@ -52,7 +52,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
     (immediateSlide = false) => {
       clearTimer();
       setIsPaused(false);
-      if (autoSlide) {
+      if (initialAutoSlide) {
+        // TODO: Should this be here?
         if (immediateSlide) {
           setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
         }
@@ -61,7 +62,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         }, interval);
       }
     },
-    [autoSlide, interval, slides.length, clearTimer],
+    [initialAutoSlide, interval, slides.length, clearTimer],
   );
 
   const restartTimer = useCallback(() => {
@@ -69,13 +70,20 @@ const Slideshow: React.FC<SlideshowProps> = ({
     if (restartDelay === -1) {
       return;
     }
-    if (autoSlide && !isPaused) {
+    if (initialAutoSlide && !isPaused) {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
     }
-  }, [autoSlide, interval, restartDelay, slides.length, clearTimer, isPaused]);
+  }, [
+    initialAutoSlide,
+    interval,
+    restartDelay,
+    slides.length,
+    clearTimer,
+    isPaused,
+  ]);
 
   const handleUserInteraction = useCallback(
     (newIndex: number, action: () => void) => {
@@ -104,7 +112,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
           isFirstRender.current = false;
         }
       }
-      if (!isFirstRender.current || autoSlide) {
+      if (!isFirstRender.current || initialAutoSlide) {
         startAutoSlide();
       }
     }
@@ -118,16 +126,16 @@ const Slideshow: React.FC<SlideshowProps> = ({
     enableRouting,
     restartDelay,
     isPaused,
-    autoSlide,
+    initialAutoSlide,
   ]);
 
   // TODO: Handle garbage collection and figure if this is otherwise necessary.
   // useEffect(() => {
-  //   if (autoSlide && restartDelay !== -1) {
+  //   if (initialAutoSlide && restartDelay !== -1) {
   //     startAutoSlide();
   //   }
   //   return clearTimer;
-  // }, [autoSlide, startAutoSlide, restartDelay, clearTimer]);
+  // }, [initialAutoSlide, startAutoSlide, restartDelay, clearTimer]);
 
   useEffect(() => {
     if (thumbnailRefs.current[currentIndex]) {
