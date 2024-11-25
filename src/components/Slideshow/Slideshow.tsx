@@ -311,7 +311,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
             ref={(el) => (thumbnailRefs.current[index] = el!)}
             onClick={() => handleButtonUserTriggered(index)}
             className={`${styles.thumbnail} ${
-              index === currentIndex ? styles.active : ""
+              index === currentIndex ? `${styles.active} active` : ""
             } thumbnail`}
             role="tab"
             aria-selected={index === currentIndex}
