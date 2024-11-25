@@ -48,15 +48,21 @@ const Slideshow: React.FC<SlideshowProps> = ({
     setIsPaused(true);
   }, []);
 
-  const startAutoSlide = useCallback(() => {
-    clearTimer();
-    setIsPaused(false);
-    if (autoSlide) {
-      timerRef.current = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
-      }, interval);
-    }
-  }, [autoSlide, interval, slides.length, clearTimer]);
+  const startAutoSlide = useCallback(
+    (immediateSlide = false) => {
+      clearTimer();
+      setIsPaused(false);
+      if (autoSlide) {
+        if (immediateSlide) {
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+        }
+        timerRef.current = setInterval(() => {
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+        }, interval);
+      }
+    },
+    [autoSlide, interval, slides.length, clearTimer],
+  );
 
   const restartTimer = useCallback(() => {
     clearTimer();
@@ -64,6 +70,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
       return;
     }
     if (autoSlide && !isPaused) {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
@@ -90,7 +97,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
       if (enableRouting) {
         if (isFirstRender.current) {
           if (currentRouteIndex !== -1) {
-            console.log("setting index:", currentRouteIndex);
             setCurrentIndex(currentRouteIndex);
           } else {
             navigate(`${basePath}/${slides[0].slug}`);
@@ -204,7 +210,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const togglePause = () => {
     if (isPaused) {
-      startAutoSlide();
+      startAutoSlide(true);
     } else {
       clearTimer();
     }
