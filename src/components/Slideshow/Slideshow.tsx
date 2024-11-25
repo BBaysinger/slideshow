@@ -218,7 +218,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   return (
     <div
-      className={`${"bbaysingerSlideshow"} bbaysinger-slideshow`}
+      className={`${styles.bbaysingerSlideshow} bbaysinger-slideshow`}
       aria-roledescription="carousel"
       aria-label="Slideshow"
       aria-live="polite"
@@ -290,7 +290,10 @@ const Slideshow: React.FC<SlideshowProps> = ({
         )}
       </div>
 
-      <div className={styles.buttonControls} role="tablist">
+      <div
+        className={`${styles.buttonControls} button-controls`}
+        role="tablist"
+      >
         {slides.map((_, index) => (
           <button
             key={index}
