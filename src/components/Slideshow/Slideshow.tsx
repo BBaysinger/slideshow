@@ -88,16 +88,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
   useEffect(() => {
     if (!isPaused) {
       if (enableRouting) {
-        if (currentRouteIndex !== -1) {
-          setCurrentIndex(currentRouteIndex);
-        } else {
-          navigate(`${basePath}/${slides[0].slug}`);
+        if (isFirstRender.current) {
+          if (currentRouteIndex !== -1) {
+            console.log("setting index:", currentRouteIndex);
+            setCurrentIndex(currentRouteIndex);
+          } else {
+            navigate(`${basePath}/${slides[0].slug}`);
+          }
+          isFirstRender.current = false;
         }
       }
-      if (isFirstRender.current) {
-        startAutoSlide();
-        isFirstRender.current = false;
-      }
+      startAutoSlide();
     }
   }, [
     slug,
@@ -111,6 +112,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
     isPaused,
   ]);
 
+  // TODO: Handle garbage collection and figure if this is otherwise necessary.
   // useEffect(() => {
   //   if (autoSlide && restartDelay !== -1) {
   //     startAutoSlide();
