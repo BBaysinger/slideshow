@@ -8,11 +8,13 @@ const Slideshow: React.FC<SlideshowProps> = ({
   slides,
   autoSlide = true,
   interval = 6000,
-  prev = "< Previous",
-  next = "Next >",
   basePath = "/slideshow",
   enableRouting = true,
-  restartDelay = 20000,
+  restartDelay = 12000,
+  previousLabel = "< Previous",
+  nextLabel = "Next >",
+  resumeLabel = "Restart",
+  pauseLabel = "Pause",
 }) => {
   const isFirstRender = useRef(true);
 
@@ -33,6 +35,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const [loadedImages, setLoadedImages] = useState<Set<number>>(
     new Set([currentIndex]),
   );
+  const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
@@ -42,10 +45,12 @@ const Slideshow: React.FC<SlideshowProps> = ({
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    setIsPaused(true);
   }, []);
 
   const startAutoSlide = useCallback(() => {
     clearTimer();
+    setIsPaused(false);
     if (autoSlide) {
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
@@ -58,12 +63,12 @@ const Slideshow: React.FC<SlideshowProps> = ({
     if (restartDelay === -1) {
       return;
     }
-    if (autoSlide) {
+    if (autoSlide && !isPaused) {
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
       }, interval);
     }
-  }, [autoSlide, interval, restartDelay, slides.length, clearTimer]);
+  }, [autoSlide, interval, restartDelay, slides.length, clearTimer, isPaused]);
 
   const handleUserInteraction = useCallback(
     (newIndex: number, action: () => void) => {
@@ -71,26 +76,28 @@ const Slideshow: React.FC<SlideshowProps> = ({
       action();
       clearTimer();
 
-      if (restartDelay > 0) {
+      if (restartDelay > 0 && !isPaused) {
         timerRef.current = setTimeout(() => {
           restartTimer();
         }, restartDelay);
       }
     },
-    [restartDelay, restartTimer, clearTimer],
+    [restartDelay, restartTimer, clearTimer, isPaused],
   );
 
   useEffect(() => {
-    if (enableRouting) {
-      if (currentRouteIndex !== -1) {
-        setCurrentIndex(currentRouteIndex);
-      } else {
-        navigate(`${basePath}/${slides[0].slug}`);
+    if (!isPaused) {
+      if (enableRouting) {
+        if (currentRouteIndex !== -1) {
+          setCurrentIndex(currentRouteIndex);
+        } else {
+          navigate(`${basePath}/${slides[0].slug}`);
+        }
       }
-    }
-    if (isFirstRender.current) {
-      startAutoSlide();
-      isFirstRender.current = false;
+      if (isFirstRender.current) {
+        startAutoSlide();
+        isFirstRender.current = false;
+      }
     }
   }, [
     slug,
@@ -101,6 +108,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
     basePath,
     enableRouting,
     restartDelay,
+    isPaused,
   ]);
 
   // useEffect(() => {
@@ -192,6 +200,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
     };
   }, [handlePrevUserTriggered, handleNextUserTriggered]);
 
+  const togglePause = () => {
+    if (isPaused) {
+      startAutoSlide();
+    } else {
+      clearTimer();
+    }
+  };
+
   return (
     <div
       className="playstationSlideshow"
@@ -229,22 +245,28 @@ const Slideshow: React.FC<SlideshowProps> = ({
       </div>
 
       <div className={styles.arrowButtonControls}>
-        {prev && (
+        {previousLabel && (
           <button
             onClick={handlePrevUserTriggered}
             aria-label="Previous slide"
             aria-controls="slideshow"
           >
-            {prev}
+            {previousLabel}
           </button>
         )}
-        {next && (
+        <button
+          onClick={togglePause}
+          aria-label={isPaused ? "Restart slideshow" : "Pause slideshow"}
+        >
+          {isPaused ? resumeLabel : pauseLabel}
+        </button>
+        {nextLabel && (
           <button
             onClick={handleNextUserTriggered}
             aria-label="Next slide"
             aria-controls="slideshow"
           >
-            {next}
+            {nextLabel}
           </button>
         )}
       </div>
