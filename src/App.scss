@@ -36,23 +36,27 @@
 .thumbnail-button-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 25px 25px;
+  justify-content: center;
 
-  button:focus {
-    outline: 2px solid #0078d7;
+  button {
+    border: 1px solid red;
+    padding: 0;
+    background-color: transparent;
+    &:focus {
+      outline: 2px solid #0078d7;
+    }
   }
 
   .thumbnail {
-    flex: 1 1 calc(100% / 3 - 1rem);
-    max-width: calc(100% / 3 - 1rem);
-
-    margin: 0 5px;
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.3s ease;
 
     img {
       width: 150px;
+      margin-bottom: 0;
+      display: block;
     }
 
     &:hover {
