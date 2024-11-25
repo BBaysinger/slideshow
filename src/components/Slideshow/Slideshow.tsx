@@ -218,12 +218,12 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   return (
     <div
-      className="playstationSlideshow"
+      className={`${"bbaysingerSlideshow"} bbaysinger-slideshow`}
       aria-roledescription="carousel"
       aria-label="Slideshow"
       aria-live="polite"
     >
-      <div className={styles.slideContainer}>
+      <div className={`${styles.slideWrapper}  slide-wrapper`}>
         {slides.map((slide, index) => (
           <div
             tabIndex={index === currentIndex ? 0 : -1}
@@ -248,6 +248,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
               onLoad={() => handleImageLoad(index)}
               style={{ display: "none" }}
             />
+          </div>
+        ))}
+      </div>
+
+      <div className={`${styles.contentWrapper} content-wrapper`}>
+        {slides.map((_, index) => (
+          <div
+            key={index}
+            className={`${styles.content} ${index === currentIndex && styles.active}`}
+          >
+            {slides[index].content}
           </div>
         ))}
       </div>

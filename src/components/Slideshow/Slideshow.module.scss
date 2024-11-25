@@ -1,4 +1,4 @@
-.slideContainer {
+.slideWrapper {
   position: relative;
   width: 100vw;
   overflow: hidden;
@@ -28,6 +28,16 @@
   }
 }
 
+.contentWrapper {
+  .content {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+}
+
 .buttonControls {
   display: flex;
   justify-content: space-between;
@@ -41,7 +51,6 @@
 }
 
 .arrowButtonControls {
-  border: 1px solid blue;
   display: flex;
   justify-content: center;
   bottom: 0;
