@@ -263,7 +263,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         ))}
       </div>
 
-      <div className={styles.arrowButtonControls}>
+      <div className={`${styles.arrowButtonControls} arrow-button-controls`}>
         {previousLabel && (
           <button
             onClick={handlePrevUserTriggered}
