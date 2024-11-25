@@ -1,0 +1,28 @@
+// Hardcoded Bootstrap breakpoints
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+// Mixins for media queries
+@mixin breakpoint-up($breakpoint) {
+  $min-width: map-get($breakpoints, $breakpoint);
+  @if $min-width != null {
+    @media (min-width: $min-width) {
+      @content;
+    }
+  }
+}
+
+@mixin breakpoint-down($breakpoint) {
+  $max-width: map-get($breakpoints, $breakpoint);
+  @if $max-width != null {
+    @media (max-width: $max-width) {
+      @content;
+    }
+  }
+}
