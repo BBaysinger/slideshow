@@ -16,7 +16,7 @@ function App() {
       content: (
         <div>
           <button>Rico is back!</button>
-          <div className="">RICOBOT</div>
+          <button className="">RICOBOT</button>
           Charge into a brand-new supersized adventure with RICO across 50
           exciting and diverse worlds, available now on PS5!
           <button className="CTA">Learn More</button>

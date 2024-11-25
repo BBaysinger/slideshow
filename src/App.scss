@@ -4,15 +4,22 @@
 
 .bbaysinger-slideshow {
   background-color: #000;
+  color: white;
 }
 
-.button-controls {
+.content-wrapper {
+  button {
+    border-radius: 50%;
+  }
+}
+
+.thumbnail-button-wrapper {
   button:focus {
     outline: 2px solid #0078d7;
   }
 }
 
-.arrow-button-controls {
+.arrow-button-wrapper {
   display: none;
 }
 

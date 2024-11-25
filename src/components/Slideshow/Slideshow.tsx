@@ -263,7 +263,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         ))}
       </div>
 
-      <div className={`${styles.arrowButtonControls} arrow-button-controls`}>
+      <div className={`${styles.arrowButtonWrapper} arrow-button-wrapper`}>
         {previousLabel && (
           <button
             onClick={handlePrevUserTriggered}
@@ -291,7 +291,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
       </div>
 
       <div
-        className={`${styles.buttonControls} button-controls`}
+        className={`${styles.thumbnailButtonWrapper} thumbnail-button-wrapper`}
         role="tablist"
       >
         {slides.map((_, index) => (
@@ -318,7 +318,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
           </button>
         ))}
       </div>
-      <p className="visually-hidden">
+      <p className={`${styles.visuallyHidden} visually-hidden`}>
         Use the left and right arrow keys to navigate the slideshow.
       </p>
     </div>
