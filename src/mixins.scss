@@ -1,3 +1,5 @@
+@use "sass:map";
+
 // Hardcoded Bootstrap breakpoints
 $breakpoints: (
   xs: 0,
@@ -10,7 +12,7 @@ $breakpoints: (
 
 // Mixins for media queries
 @mixin breakpoint-up($breakpoint) {
-  $min-width: map-get($breakpoints, $breakpoint);
+  $min-width: map.get($breakpoints, $breakpoint);
   @if $min-width != null {
     @media (min-width: $min-width) {
       @content;
@@ -19,7 +21,7 @@ $breakpoints: (
 }
 
 @mixin breakpoint-down($breakpoint) {
-  $max-width: map-get($breakpoints, $breakpoint);
+  $max-width: map.get($breakpoints, $breakpoint);
   @if $max-width != null {
     @media (max-width: $max-width) {
       @content;

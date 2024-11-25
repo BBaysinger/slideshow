@@ -1,3 +1,10 @@
+/**
+* This should all be overridable defaults. Just the bare minimum
+* to make it seem like a slideshow out of the box.
+* TODO: Evaluate if everything is a good default, overridable,
+* and if this is best approach.
+*/
+
 .bbaysingerSlideshow {
   position: relative;
 }
@@ -40,20 +47,16 @@
   .content {
     position: relative;
     display: none;
-    top: 100px;
     transition: top 400ms ease;
 
     &.active {
       display: block;
-      top: 0;
     }
   }
 }
 
 .thumbnailButtonWrapper {
   display: flex;
-  justify-content: space-between;
-  bottom: 10px;
 }
 
 .arrowButtonWrapper {
