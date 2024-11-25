@@ -40,18 +40,22 @@
   justify-content: center;
 
   button {
-    border: 1px solid red;
     padding: 0;
     background-color: transparent;
     &:focus {
       outline: 2px solid #0078d7;
+      opacity: 1;
+      &:hover {
+        opacity: 1;
+      }
     }
   }
 
   .thumbnail {
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
+    opacity: 0.7;
+    border-radius: 14px;
+    overflow: hidden;
 
     img {
       width: 150px;
@@ -60,12 +64,10 @@
     }
 
     &:hover {
-      opacity: 0.7;
+      opacity: 0.8;
     }
 
-    &.active {
-      opacity: 1;
-    }
+
   }
 }
 
