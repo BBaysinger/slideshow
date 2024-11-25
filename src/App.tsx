@@ -16,10 +16,10 @@ function App() {
       content: (
         <div>
           <button>Rico is back!</button>
-          <button className="">RICOBOT</button>
+          <h2 className="">RICOBOT</h2>
           Charge into a brand-new supersized adventure with RICO across 50
           exciting and diverse worlds, available now on PS5!
-          <button className="CTA">Learn More</button>
+          <button className="cta">Learn More</button>
         </div>
       ),
     },
@@ -70,7 +70,13 @@ function App() {
       <Routes>
         <Route
           path="rico-slideshow/:slug"
-          element={<Slideshow slides={slides} basePath="/rico-slideshow" />}
+          element={
+            <Slideshow
+              slides={slides}
+              basePath="/rico-slideshow"
+              autoSlide={false}
+            />
+          }
         />
         <Route
           path="second-slideshow/:slug"

@@ -104,7 +104,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
           isFirstRender.current = false;
         }
       }
-      startAutoSlide();
+      if (!isFirstRender.current || autoSlide) {
+        startAutoSlide();
+      }
     }
   }, [
     slug,
@@ -116,6 +118,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
     enableRouting,
     restartDelay,
     isPaused,
+    autoSlide,
   ]);
 
   // TODO: Handle garbage collection and figure if this is otherwise necessary.
