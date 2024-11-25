@@ -52,8 +52,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
     (immediateSlide = false) => {
       clearTimer();
       setIsPaused(false);
+      // TODO: Is this the appropriate condition?
       if (initialAutoSlide) {
-        // TODO: Should this be here?
         if (immediateSlide) {
           setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
         }
@@ -312,7 +312,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
             onClick={() => handleButtonUserTriggered(index)}
             className={`${styles.thumbnail} ${
               index === currentIndex ? styles.active : ""
-            }`}
+            } thumbnail`}
             role="tab"
             aria-selected={index === currentIndex}
             aria-controls={`slide-${index}`}

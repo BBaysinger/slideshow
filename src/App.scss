@@ -35,6 +35,25 @@
   button:focus {
     outline: 2px solid #0078d7;
   }
+
+  .thumbnail {
+    margin: 0 5px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+
+    img {
+      width: 150px;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &.active {
+      opacity: 1;
+    }
+  }
 }
 
 .arrow-button-wrapper {
