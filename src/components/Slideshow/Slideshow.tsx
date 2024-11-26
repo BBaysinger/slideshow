@@ -39,7 +39,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const [currentIndex, setCurrentIndex] = useState(() =>
     currentRouteIndex !== -1 ? currentRouteIndex : 0,
   );
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(
+  const [imageLoadStatus, setImageLoadStatus] = useState<Set<number>>(
     new Set([currentIndex]),
   );
   const [isPaused, setIsPaused] = useState(false);
@@ -167,13 +167,13 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }, [currentIndex, stableSlides, handleUserInteraction]);
 
   const handleImageLoad = (index: number) => {
-    setLoadedImages((prev) => new Set(prev).add(index));
+    setImageLoadStatus((prev) => new Set(prev).add(index));
   };
 
   const getLoadingAttribute = (index: number): "eager" | "lazy" | undefined => {
     if (index === currentIndex) return "eager";
     if (
-      loadedImages.has((index - 1 + stableSlides.length) % stableSlides.length)
+      imageLoadStatus.has((index - 1 + stableSlides.length) % stableSlides.length)
     ) {
       return "lazy";
     }
