@@ -1,3 +1,12 @@
+/**
+ * Utility to load images in the background to be available in
+ * memory by the time they become displayed.
+ *
+ * @author Bradley Baysinger
+ * @since The beginning of time.
+ * @version N/A
+ */
+
 class ImagePreloader {
   private images: string[];
   private startIndex: number;

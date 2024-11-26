@@ -63,8 +63,9 @@
   display: flex;
   justify-content: center;
   bottom: 0;
-  width: 100%;
-  padding: 10px 0;
+  button {
+    cursor: pointer;
+  }
 }
 
 .visuallyHidden {
