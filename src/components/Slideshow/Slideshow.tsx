@@ -8,6 +8,7 @@ import React, {
 import { useNavigate, useParams } from "react-router-dom";
 
 import { SlideshowProps } from "./Slideshow.types";
+import ImagePreloader from "utils/ImagePreloader";
 import styles from "./Slideshow.module.scss";
 
 const Slideshow: React.FC<SlideshowProps> = ({
@@ -34,17 +35,21 @@ const Slideshow: React.FC<SlideshowProps> = ({
   if (enableRouting && !slug) {
     navigate(`${basePath}/${slides[0].slug}`);
   }
-  
+
   const currentRouteIndex = enableRouting
     ? stableSlides.findIndex((slide) => slide.slug === slug)
     : -1;
 
+  useEffect(() => {
+    const sources = slides.map((slide) => slide.background);
+    const preloader = new ImagePreloader(sources, currentRouteIndex);
+    preloader.preload();
+  }, [currentRouteIndex, slides]);
+
   const [currentIndex, setCurrentIndex] = useState(() =>
     currentRouteIndex !== -1 ? currentRouteIndex : 0,
   );
-  const [imageLoadStatus, setImageLoadStatus] = useState<Set<number>>(
-    new Set([currentIndex]),
-  );
+
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
@@ -169,21 +174,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
     handleUserInteraction(newIndex);
   }, [currentIndex, stableSlides, handleUserInteraction]);
 
-  const handleImageLoad = (index: number) => {
-    setImageLoadStatus((prev) => new Set(prev).add(index));
-  };
-
-  const getLoadingAttribute = (index: number): "eager" | "lazy" | undefined => {
-    if (index === currentIndex) return "eager";
-    if (
-      imageLoadStatus.has((index - 1 + stableSlides.length) % stableSlides.length)
-    ) {
-      return "lazy";
-    }
-    return undefined;
-  };
-
   useEffect(() => {
+    console.log("useEffect triggered");
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         handlePrevUserTriggered();
@@ -191,11 +183,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
         handleNextUserTriggered();
       }
     };
-  
+
     window.addEventListener("keydown", handleKeyDown);
-  
+
     return () => {
-      clearTimer();
+      // clearTimer();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handlePrevUserTriggered, handleNextUserTriggered, clearTimer]);
@@ -224,7 +216,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
               index === currentIndex ? styles.active : ""
             }`}
             style={{
-              backgroundImage: `url(/assets/images/${slide.background})`,
+              backgroundImage: `url(${slide.background})`,
             }}
             role="group"
             aria-roledescription="slide"
@@ -232,15 +224,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
               slide.alt || `Slide ${index + 1} of ${stableSlides.length}`
             }`}
             aria-hidden={index !== currentIndex}
-          >
-            <img
-              loading={getLoadingAttribute(index)}
-              src={`/assets/images/${slide.background}`}
-              alt={slide.alt || `Slide ${index + 1}`}
-              onLoad={() => handleImageLoad(index)}
-              style={{ display: "none" }}
-            />
-          </div>
+          ></div>
         ))}
       </div>
 
@@ -301,7 +285,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
           >
             {stableSlides[index].thumbnail ? (
               <img
-                src={`/assets/images/${stableSlides[index].thumbnail}`}
+                src={stableSlides[index].thumbnail}
                 alt={stableSlides[index].alt || `Slide thumbnail ${index + 1}`}
               />
             ) : (
