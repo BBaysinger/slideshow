@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { SlideshowProps } from "./Slideshow.types";
@@ -17,16 +23,17 @@ const Slideshow: React.FC<SlideshowProps> = ({
   pauseLabel = "Pause",
 }) => {
   const isFirstRender = useRef(true);
+  const stableSlides = useMemo(() => slides, [slides]);
 
   if (enableRouting && !basePath) {
-    throw new Error("basePath is required when routing is enabled.");
+    console.error("'basePath' is required when routing is enabled.");
   }
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   const currentRouteIndex = enableRouting
-    ? slides.findIndex((slide) => slide.slug === slug)
+    ? stableSlides.findIndex((slide) => slide.slug === slug)
     : -1;
 
   const [currentIndex, setCurrentIndex] = useState(() =>
@@ -55,14 +62,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
       // TODO: Is this the appropriate condition?
       if (initialAutoSlide) {
         if (immediateSlide) {
-          setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
         }
         timerRef.current = setInterval(() => {
-          setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
         }, interval);
       }
     },
-    [initialAutoSlide, interval, slides.length, clearTimer],
+    [initialAutoSlide, interval, stableSlides.length, clearTimer],
   );
 
   const restartTimer = useCallback(() => {
@@ -71,16 +78,16 @@ const Slideshow: React.FC<SlideshowProps> = ({
       return;
     }
     if (initialAutoSlide && !isPaused) {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
       timerRef.current = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
       }, interval);
     }
   }, [
     initialAutoSlide,
     interval,
     restartDelay,
-    slides.length,
+    stableSlides.length,
     clearTimer,
     isPaused,
   ]);
@@ -107,7 +114,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
           if (currentRouteIndex !== -1) {
             setCurrentIndex(currentRouteIndex);
           } else {
-            navigate(`${basePath}/${slides[0].slug}`);
+            navigate(`${basePath}/${stableSlides[0].slug}`);
           }
           isFirstRender.current = false;
         }
@@ -119,7 +126,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }, [
     slug,
     currentRouteIndex,
-    slides,
+    stableSlides,
     navigate,
     startAutoSlide,
     basePath,
@@ -145,18 +152,18 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const handlePrevUserTriggered = useCallback(() => {
     handleUserInteraction(
-      (currentIndex - 1 + slides.length) % slides.length,
+      (currentIndex - 1 + stableSlides.length) % stableSlides.length,
       () => {
         if (enableRouting) {
           navigate(
-            `${basePath}/${slides[(currentIndex - 1 + slides.length) % slides.length].slug}`,
+            `${basePath}/${stableSlides[(currentIndex - 1 + stableSlides.length) % stableSlides.length].slug}`,
           );
         }
       },
     );
   }, [
     currentIndex,
-    slides,
+    stableSlides,
     enableRouting,
     basePath,
     navigate,
@@ -167,24 +174,24 @@ const Slideshow: React.FC<SlideshowProps> = ({
     (newIndex: number) => {
       handleUserInteraction(newIndex, () => {
         if (enableRouting) {
-          navigate(`${basePath}/${slides[newIndex].slug}`);
+          navigate(`${basePath}/${stableSlides[newIndex].slug}`);
         }
       });
     },
-    [basePath, slides, enableRouting, navigate, handleUserInteraction],
+    [basePath, stableSlides, enableRouting, navigate, handleUserInteraction],
   );
 
   const handleNextUserTriggered = useCallback(() => {
-    handleUserInteraction((currentIndex + 1) % slides.length, () => {
+    handleUserInteraction((currentIndex + 1) % stableSlides.length, () => {
       if (enableRouting) {
         navigate(
-          `${basePath}/${slides[(currentIndex + 1) % slides.length].slug}`,
+          `${basePath}/${stableSlides[(currentIndex + 1) % stableSlides.length].slug}`,
         );
       }
     });
   }, [
     currentIndex,
-    slides,
+    stableSlides,
     enableRouting,
     basePath,
     navigate,
@@ -197,7 +204,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const getLoadingAttribute = (index: number): "eager" | "lazy" | undefined => {
     if (index === currentIndex) return "eager";
-    if (loadedImages.has((index - 1 + slides.length) % slides.length)) {
+    if (
+      loadedImages.has((index - 1 + stableSlides.length) % stableSlides.length)
+    ) {
       return "lazy";
     }
     return undefined;
@@ -235,7 +244,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
       aria-live="polite"
     >
       <div className={`${styles.slideWrapper}  slide-wrapper`}>
-        {slides.map((slide, index) => (
+        {stableSlides.map((slide, index) => (
           <div
             tabIndex={index === currentIndex ? 0 : -1}
             key={index}
@@ -248,7 +257,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
             role="group"
             aria-roledescription="slide"
             aria-label={`${
-              slide.alt || `Slide ${index + 1} of ${slides.length}`
+              slide.alt || `Slide ${index + 1} of ${stableSlides.length}`
             }`}
             aria-hidden={index !== currentIndex}
           >
@@ -264,12 +273,12 @@ const Slideshow: React.FC<SlideshowProps> = ({
       </div>
 
       <div className={`${styles.contentWrapper} content-wrapper`}>
-        {slides.map((_, index) => (
+        {stableSlides.map((_, index) => (
           <div
             key={index}
             className={`${styles.content} ${index === currentIndex && styles.active}`}
           >
-            {slides[index].content}
+            {stableSlides[index].content}
           </div>
         ))}
       </div>
@@ -305,7 +314,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
         className={`${styles.thumbnailButtonWrapper} thumbnail-button-wrapper`}
         role="tablist"
       >
-        {slides.map((_, index) => (
+        {stableSlides.map((_, index) => (
           <button
             key={index}
             ref={(el) => (thumbnailRefs.current[index] = el!)}
@@ -318,10 +327,10 @@ const Slideshow: React.FC<SlideshowProps> = ({
             aria-controls={`slide-${index}`}
             id={`tab-${index}`}
           >
-            {slides[index].thumbnail ? (
+            {stableSlides[index].thumbnail ? (
               <img
-                src={`/assets/images/${slides[index].thumbnail}`}
-                alt={slides[index].alt || `Slide thumbnail ${index + 1}`}
+                src={`/assets/images/${stableSlides[index].thumbnail}`}
+                alt={stableSlides[index].alt || `Slide thumbnail ${index + 1}`}
               />
             ) : (
               <span className="visually-hidden">{`Slide ${index + 1}`}</span>
