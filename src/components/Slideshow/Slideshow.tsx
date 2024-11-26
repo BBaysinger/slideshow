@@ -17,7 +17,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   interval = 6000,
   basePath = "/slideshow",
   enableRouting = true,
-  restartDelay = 12000,
+  restartDelay = 14000,
   previousLabel = "< Previous",
   nextLabel = "Next >",
   resumeLabel = "Restart",
@@ -73,18 +73,15 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
   const clearTimer = useCallback(() => {
-    console.log("clearTimer");
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    setIsPaused(true);
   }, []);
 
   const startAutoSlide = useCallback(
     (immediateSlide = false) => {
-      console.log("startAutoSlide");
       clearTimer();
       setIsPaused(false);
       // TODO: Is this the appropriate condition?
@@ -102,9 +99,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const restartTimer = useCallback(() => {
     clearTimer();
-    if (restartDelay === -1) {
+
+    if (restartDelay <= 0) {
       return;
     }
+
     if (initialAutoSlide && !isPausedRef.current) {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
       timerRef.current = setInterval(() => {
@@ -143,7 +142,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
     startAutoSlide,
     basePath,
     enableRouting,
-    restartDelay,
     initialAutoSlide,
   ]);
 
@@ -191,7 +189,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }, [stableSlides, handleUserInteraction]);
 
   useEffect(() => {
-    console.log("useEffect triggered");
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         handlePrevUserTriggered();
@@ -213,6 +210,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
       startAutoSlide(true);
     } else {
       clearTimer();
+      setIsPaused(true);
     }
   };
 
