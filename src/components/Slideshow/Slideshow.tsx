@@ -28,10 +28,13 @@ const Slideshow: React.FC<SlideshowProps> = ({
   if (enableRouting && !basePath) {
     console.error("'basePath' is required when routing is enabled.");
   }
-
-  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
+  const { slug } = useParams<{ slug?: string }>();
+  if (enableRouting && !slug) {
+    navigate(`${basePath}/${slides[0].slug}`);
+  }
+  
   const currentRouteIndex = enableRouting
     ? stableSlides.findIndex((slide) => slide.slug === slug)
     : -1;
@@ -188,13 +191,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
         handleNextUserTriggered();
       }
     };
-
+  
     window.addEventListener("keydown", handleKeyDown);
-
+  
     return () => {
+      clearTimer();
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handlePrevUserTriggered, handleNextUserTriggered]);
+  }, [handlePrevUserTriggered, handleNextUserTriggered, clearTimer]);
 
   const togglePause = () => {
     if (isPaused) {
