@@ -47,6 +47,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
   const clearTimer = useCallback(() => {
+    console.log("clearTimer");
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       clearInterval(timerRef.current);
@@ -57,6 +58,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   const startAutoSlide = useCallback(
     (immediateSlide = false) => {
+      console.log("startAutoSlide");
       clearTimer();
       setIsPaused(false);
       // TODO: Is this the appropriate condition?
@@ -92,21 +94,6 @@ const Slideshow: React.FC<SlideshowProps> = ({
     isPaused,
   ]);
 
-  const handleUserInteraction = useCallback(
-    (newIndex: number, action: () => void) => {
-      setCurrentIndex(newIndex);
-      action();
-      clearTimer();
-
-      if (restartDelay > 0 && !isPaused) {
-        timerRef.current = setTimeout(() => {
-          restartTimer();
-        }, restartDelay);
-      }
-    },
-    [restartDelay, restartTimer, clearTimer, isPaused],
-  );
-
   useEffect(() => {
     if (!isPaused) {
       if (enableRouting) {
@@ -136,67 +123,48 @@ const Slideshow: React.FC<SlideshowProps> = ({
     initialAutoSlide,
   ]);
 
-  // TODO: Handle garbage collection and figure if this is otherwise necessary.
-  // useEffect(() => {
-  //   if (initialAutoSlide && restartDelay !== -1) {
-  //     startAutoSlide();
-  //   }
-  //   return clearTimer;
-  // }, [initialAutoSlide, startAutoSlide, restartDelay, clearTimer]);
-
   useEffect(() => {
     if (thumbnailRefs.current[currentIndex]) {
       thumbnailRefs.current[currentIndex].focus();
     }
   }, [currentIndex]);
-
-  const handlePrevUserTriggered = useCallback(() => {
-    handleUserInteraction(
-      (currentIndex - 1 + stableSlides.length) % stableSlides.length,
-      () => {
-        if (enableRouting) {
-          navigate(
-            `${basePath}/${stableSlides[(currentIndex - 1 + stableSlides.length) % stableSlides.length].slug}`,
-          );
-        }
-      },
-    );
-  }, [
-    currentIndex,
-    stableSlides,
-    enableRouting,
-    basePath,
-    navigate,
-    handleUserInteraction,
-  ]);
-
-  const handleButtonUserTriggered = useCallback(
+  const handleUserInteraction = useCallback(
     (newIndex: number) => {
-      handleUserInteraction(newIndex, () => {
-        if (enableRouting) {
-          navigate(`${basePath}/${stableSlides[newIndex].slug}`);
-        }
-      });
+      setCurrentIndex(newIndex);
+      if (enableRouting) {
+        const route = `${basePath}/${stableSlides[newIndex].slug}`;
+        navigate(route);
+      }
+      clearTimer();
+
+      if (restartDelay > 0 && !isPaused) {
+        timerRef.current = setTimeout(() => {
+          restartTimer();
+        }, restartDelay);
+      }
     },
-    [basePath, stableSlides, enableRouting, navigate, handleUserInteraction],
+    [
+      restartDelay,
+      restartTimer,
+      clearTimer,
+      isPaused,
+      enableRouting,
+      basePath,
+      stableSlides,
+      navigate,
+    ],
   );
 
+  const handlePrevUserTriggered = useCallback(() => {
+    const newIndex =
+      (currentIndex - 1 + stableSlides.length) % stableSlides.length;
+    handleUserInteraction(newIndex);
+  }, [currentIndex, stableSlides, handleUserInteraction]);
+
   const handleNextUserTriggered = useCallback(() => {
-    handleUserInteraction((currentIndex + 1) % stableSlides.length, () => {
-      if (enableRouting) {
-        navigate(
-          `${basePath}/${stableSlides[(currentIndex + 1) % stableSlides.length].slug}`,
-        );
-      }
-    });
-  }, [
-    currentIndex,
-    stableSlides,
-    enableRouting,
-    basePath,
-    navigate,
-    handleUserInteraction,
-  ]);
+    const newIndex = (currentIndex + 1) % stableSlides.length;
+    handleUserInteraction(newIndex);
+  }, [currentIndex, stableSlides, handleUserInteraction]);
 
   const handleImageLoad = (index: number) => {
     setLoadedImages((prev) => new Set(prev).add(index));
@@ -318,7 +286,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
           <button
             key={index}
             ref={(el) => (thumbnailRefs.current[index] = el!)}
-            onClick={() => handleButtonUserTriggered(index)}
+            onClick={() => handleUserInteraction(index)}
             className={`${styles.thumbnail} ${
               index === currentIndex ? `${styles.active} active` : ""
             } thumbnail`}
