@@ -31,9 +31,15 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }
   const navigate = useNavigate();
 
+  const navigateRef = useRef(navigate);
+
+  useEffect(() => {
+    navigateRef.current = navigate;
+  }, [navigate]);
+
   const { slug } = useParams<{ slug?: string }>();
   if (enableRouting && !slug) {
-    navigate(`${basePath}/${slides[0].slug}`);
+    navigateRef.current(`${basePath}/${slides[0].slug}`);
   }
 
   const currentRouteIndex = enableRouting
@@ -50,7 +56,19 @@ const Slideshow: React.FC<SlideshowProps> = ({
     currentRouteIndex !== -1 ? currentRouteIndex : 0,
   );
 
+  const currentIndexRef = useRef(currentIndex);
+
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
   const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(isPaused);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const thumbnailRefs = useRef<HTMLButtonElement[]>([]);
 
@@ -87,7 +105,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
     if (restartDelay === -1) {
       return;
     }
-    if (initialAutoSlide && !isPaused) {
+    if (initialAutoSlide && !isPausedRef.current) {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
       timerRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % stableSlides.length);
@@ -99,17 +117,16 @@ const Slideshow: React.FC<SlideshowProps> = ({
     restartDelay,
     stableSlides.length,
     clearTimer,
-    isPaused,
   ]);
 
   useEffect(() => {
-    if (!isPaused) {
+    if (!isPausedRef.current) {
       if (enableRouting) {
         if (isFirstRender.current) {
           if (currentRouteIndex !== -1) {
             setCurrentIndex(currentRouteIndex);
           } else {
-            navigate(`${basePath}/${stableSlides[0].slug}`);
+            navigateRef.current(`${basePath}/${stableSlides[0].slug}`);
           }
           isFirstRender.current = false;
         }
@@ -122,30 +139,30 @@ const Slideshow: React.FC<SlideshowProps> = ({
     slug,
     currentRouteIndex,
     stableSlides,
-    navigate,
+    navigateRef,
     startAutoSlide,
     basePath,
     enableRouting,
     restartDelay,
-    isPaused,
     initialAutoSlide,
   ]);
 
   useEffect(() => {
-    if (thumbnailRefs.current[currentIndex]) {
-      thumbnailRefs.current[currentIndex].focus();
+    if (thumbnailRefs.current[currentIndexRef.current]) {
+      thumbnailRefs.current[currentIndexRef.current].focus();
     }
-  }, [currentIndex]);
+  });
+
   const handleUserInteraction = useCallback(
     (newIndex: number) => {
       setCurrentIndex(newIndex);
       if (enableRouting) {
         const route = `${basePath}/${stableSlides[newIndex].slug}`;
-        navigate(route);
+        navigateRef.current(route);
       }
       clearTimer();
 
-      if (restartDelay > 0 && !isPaused) {
+      if (restartDelay > 0 && !isPausedRef.current) {
         timerRef.current = setTimeout(() => {
           restartTimer();
         }, restartDelay);
@@ -155,24 +172,22 @@ const Slideshow: React.FC<SlideshowProps> = ({
       restartDelay,
       restartTimer,
       clearTimer,
-      isPaused,
       enableRouting,
       basePath,
       stableSlides,
-      navigate,
     ],
   );
 
   const handlePrevUserTriggered = useCallback(() => {
     const newIndex =
-      (currentIndex - 1 + stableSlides.length) % stableSlides.length;
+      (currentIndexRef.current - 1 + stableSlides.length) % stableSlides.length;
     handleUserInteraction(newIndex);
-  }, [currentIndex, stableSlides, handleUserInteraction]);
+  }, [stableSlides, handleUserInteraction]);
 
   const handleNextUserTriggered = useCallback(() => {
-    const newIndex = (currentIndex + 1) % stableSlides.length;
+    const newIndex = (currentIndexRef.current + 1) % stableSlides.length;
     handleUserInteraction(newIndex);
-  }, [currentIndex, stableSlides, handleUserInteraction]);
+  }, [stableSlides, handleUserInteraction]);
 
   useEffect(() => {
     console.log("useEffect triggered");
@@ -193,7 +208,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
   }, [handlePrevUserTriggered, handleNextUserTriggered, clearTimer]);
 
   const togglePause = () => {
-    if (isPaused) {
+    if (isPausedRef.current) {
       startAutoSlide(true);
     } else {
       clearTimer();
@@ -251,9 +266,11 @@ const Slideshow: React.FC<SlideshowProps> = ({
         )}
         <button
           onClick={togglePause}
-          aria-label={isPaused ? "Restart slideshow" : "Pause slideshow"}
+          aria-label={
+            isPausedRef.current ? "Restart slideshow" : "Pause slideshow"
+          }
         >
-          {isPaused ? resumeLabel : pauseLabel}
+          {isPausedRef.current ? resumeLabel : pauseLabel}
         </button>
         {nextLabel && (
           <button
