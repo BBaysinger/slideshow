@@ -56,13 +56,20 @@
     opacity: 0.7;
     border-radius: 8px;
     overflow: hidden;
-    border: 0;
+    border: 0.7vw solid transparent;
     padding: 0;
     background-color: transparent;
+    box-sizing: border-box;
+    outline: 0;
 
     &.active {
-      outline: 1vw solid #0078d7;
+      border-color: #0078d7;
       opacity: 1;
+
+      @include mixins.breakpoint-up(xs) {
+        // border: 0.7vw solid #0078d7;
+      }
+
       &:hover {
         opacity: 1;
       }
@@ -72,11 +79,11 @@
       display: block;
       border-radius: 4px;
       width: 35vw;
-      margin: 2vw;
+      margin: 1.1vw;
 
       @include mixins.breakpoint-up(xs) {
         width: 25vw;
-        margin: 1.8vw;
+        margin: 1.1vw;
       }
 
       @include mixins.breakpoint-up(sm) {

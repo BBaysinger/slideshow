@@ -2,13 +2,13 @@
 
 // Hardcoded Bootstrap breakpoints
 $breakpoints: (
-  xs: 360px,
   // Not a Bootstrap breakpoint
+  xs: 360px,
   sm: 576px,
   md: 768px,
   lg: 992px,
   xl: 1200px,
-  xxl: 1400px,
+  xxl: 1400px
 );
 
 // Mobile-first media queries
