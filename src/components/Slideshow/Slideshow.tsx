@@ -29,8 +29,8 @@ const Slideshow: React.FC<SlideshowProps> = ({
   if (enableRouting && !basePath) {
     console.error("'basePath' is required when routing is enabled.");
   }
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const navigateRef = useRef(navigate);
 
   useEffect(() => {
@@ -179,13 +179,14 @@ const Slideshow: React.FC<SlideshowProps> = ({
   );
 
   const handlePrevUserTriggered = useCallback(() => {
-    const newIndex =
+    const newIndex: number =
       (currentIndexRef.current - 1 + stableSlides.length) % stableSlides.length;
     handleUserInteraction(newIndex);
   }, [stableSlides, handleUserInteraction]);
 
   const handleNextUserTriggered = useCallback(() => {
-    const newIndex = (currentIndexRef.current + 1) % stableSlides.length;
+    const newIndex: number =
+      (currentIndexRef.current + 1) % stableSlides.length;
     handleUserInteraction(newIndex);
   }, [stableSlides, handleUserInteraction]);
 
@@ -202,7 +203,7 @@ const Slideshow: React.FC<SlideshowProps> = ({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      // clearTimer();
+      clearTimer();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handlePrevUserTriggered, handleNextUserTriggered, clearTimer]);

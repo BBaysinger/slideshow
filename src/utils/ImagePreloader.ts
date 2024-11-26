@@ -30,15 +30,15 @@ class ImagePreloader {
 
   private preloadImage(url: string): void {
     const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "prefetch";
+    link.rel = "prefetch";
+    link.as = "image";
     link.href = url;
     document.head.appendChild(link);
 
     link.onload = () => {
       document.head.removeChild(link);
       this.loadedCount++;
-      console.log(`Loaded ${this.loadedCount}/${this.images.length}`);
+      // console.log(`Loaded ${this.loadedCount}/${this.images.length}`);
     };
 
     link.onerror = () => {
