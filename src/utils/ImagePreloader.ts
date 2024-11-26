@@ -1,7 +1,6 @@
 /**
- * Utility to load images in the background to be available in
- * memory by the time they become displayed. This occurs sequentially,
- * starting from the given index, one at a time.
+ * Preload image utility. Each load occurs sequentially,
+ * starting from the passed startIndex, one at a time.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -52,7 +51,7 @@ class ImagePreloader {
       link.onload = () => {
         document.head.removeChild(link);
         this.loadedCount++;
-        console.log(`Loaded ${this.loadedCount}/${this.images.length}`);
+        // console.info(`Loaded ${this.loadedCount}/${this.images.length}`);
         resolve();
       };
 
