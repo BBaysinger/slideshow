@@ -48,9 +48,9 @@ const Slideshow: React.FC<SlideshowProps> = ({
 
   useEffect(() => {
     const sources = slides.map((slide) => slide.background);
-    const preloader = new ImagePreloader(sources, currentRouteIndex);
+    const preloader = new ImagePreloader(sources, currentIndexRef.current);
     preloader.preload();
-  }, [currentRouteIndex, slides]);
+  }, [slides]);
 
   const [currentIndex, setCurrentIndex] = useState(() =>
     currentRouteIndex !== -1 ? currentRouteIndex : 0,

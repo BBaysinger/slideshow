@@ -1,6 +1,7 @@
 /**
  * Utility to load images in the background to be available in
- * memory by the time they become displayed.
+ * memory by the time they become displayed. This occurs sequentially,
+ * starting from the given index, one at a time.
  *
  * @author Bradley Baysinger
  * @since The beginning of time.
@@ -25,35 +26,42 @@ class ImagePreloader {
     this.loadedCount = 0;
   }
 
-  preload(): void {
-    this.preloadImage(this.images[this.startIndex]);
+  async preload(): Promise<void> {
+    const orderedImages = [
+      ...this.images.slice(this.startIndex),
+      ...this.images.slice(0, this.startIndex),
+    ];
 
-    for (let i = this.startIndex + 1; i < this.images.length; i++) {
-      this.preloadImage(this.images[i]);
-    }
-
-    for (let i = 0; i < this.startIndex; i++) {
-      this.preloadImage(this.images[i]);
+    for (const image of orderedImages) {
+      try {
+        await this.preloadImage(image);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
-  private preloadImage(url: string): void {
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.as = "image";
-    link.href = url;
-    document.head.appendChild(link);
+  private preloadImage(url: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.as = "image";
+      link.href = url;
+      document.head.appendChild(link);
 
-    link.onload = () => {
-      document.head.removeChild(link);
-      this.loadedCount++;
-      // console.log(`Loaded ${this.loadedCount}/${this.images.length}`);
-    };
+      link.onload = () => {
+        document.head.removeChild(link);
+        this.loadedCount++;
+        console.log(`Loaded ${this.loadedCount}/${this.images.length}`);
+        resolve();
+      };
 
-    link.onerror = () => {
-      document.head.removeChild(link);
-      console.error(`Failed to preload ${url}`);
-    };
+      link.onerror = () => {
+        document.head.removeChild(link);
+        console.error(`Failed to preload ${url}`);
+        reject(new Error(`Failed to preload ${url}`));
+      };
+    });
   }
 }
 
